@@ -2,6 +2,8 @@
 #define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
+#include <EEPROM.h>
+
 #define CIRCULAR_BUFFER_XS
 #include <CircularBuffer.h>
 
@@ -34,30 +36,26 @@ CRGB leds[NUM_LEDS];
 
 volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
-volatile uint16_t old_pwm = 1500;
-volatile uint16_t prev_pwm = 1500;
+//volatile uint16_t old_pwm = 1500;
+//volatile uint16_t prev_pwm = 1500;
 
 volatile boolean inPulse = false;
 volatile boolean updatedLEDs = true;
-volatile uint16_t pulseCount = 1500;
+//volatile uint16_t pulseCount = 1500;
 
-volatile boolean prevModeButtonState = HIGH;
-volatile boolean currModeButtonState = HIGH;
-volatile uint16_t buttonHoldCount = 0;
+boolean prevModeButtonState = HIGH;
+boolean currModeButtonState = HIGH;
+uint16_t modeButtonHoldCount = 0;
+unsigned int ssButtonHoldCount = 0;
 
-volatile boolean prevSSButtonState = HIGH;
-volatile boolean currSSButtonState = HIGH;
+boolean prevSSButtonState = HIGH;
+boolean currSSButtonState = HIGH;
 
 boolean addressableStrip = true;
 
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
 
-volatile int currentPattern = 0;
-//volatile int prevPattern = 0;
-//volatile int prev2Pattern = 0;
-
-//int patternHistory[] = { 0, 0, 0, 0 ,0 };
 CircularBuffer<short,5> patternHistory; // uses 538 bytes 
 bool patternStable = true;
 
@@ -78,6 +76,12 @@ void setup() {
   patternHistory.unshift(0);
   patternHistory.unshift(0);
   patternHistory.unshift(0);
+
+  addressableStrip = EEPROM.read(0);
+  
+  for (int i = 0 ; i< patternHistory.capacity() ; i++){
+      patternHistory.unshift(0);
+  }
 
   //set timer1 interrupt at 1Hz
   TCCR1A = 0;// set entire TCCR1A register to 0
@@ -129,7 +133,7 @@ void setup() {
   }
 
   // when pin D2(Servo input) goes high, call the rising function
-  attachInterrupt(digitalPinToInterrupt(2), rising, RISING);
+  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 
 }
 
@@ -140,39 +144,10 @@ SimplePatternList gPatterns = { Black, rainbow, rainbowWithGlitter, confetti, si
 
 void loop() {
 
+  buttonHandler();
 
-  if ((inPulse == false) && (updatedLEDs == false))
-  {
-
-    // send the 'leds' array out to the actual LED strip
-    //30uS per LED for addressable
-    if (addressableStrip == true) {
-      //gPatterns[currentPattern]();
-
-      //check that the pattern value has been stable 
-      for (int i = 0 ; i< patternHistory.capacity() ; i++){
-        if (patternHistory[0] != patternHistory[i])
-          patternStable = false;
-      }
-
-
-      if (patternStable){
-        gPatterns[patternHistory[0]]();        
-      }
-      else{
-        gPatterns[patternHistory.last()];
-      }
-
-      
-      //update LED display
-      FastLED.show();
-
-      patternStable = true;
-    }
-
-    attachInterrupt(digitalPinToInterrupt(2), rising, RISING);
-    updatedLEDs = true;
-
+  if ((inPulse == false) && (updatedLEDs == false)){
+    ledUpdate();
   }
 
   // do some periodic updates
@@ -182,97 +157,126 @@ void loop() {
 }
 
 
-ISR(TIMER1_COMPA_vect) { //timer1 interrupt 1Hz
-//ISR(TIMER1_OVF_vect){
-  //currentPattern = 13;
-  //gPatterns[currentPattern]();
 
-//  for (int i = 0 ; i<patternHistory.capacity() ; i++){
-//      patternHistory.unshift(13);
-//  }
+ISR(TIMER1_COMPA_vect) { 
 
   patternHistory.unshift(14);
   
   updatedLEDs = false;
   inPulse = false;
-  //TCNT1  = 0;//initialize counter value to 0, reset heatbeat
 
-
-  attachInterrupt(digitalPinToInterrupt(2), rising, RISING);
-
-
-  /*currSSButtonState = digitalRead(SS_PIN);
-
-    if (currSSButtonState == LOW && prevSSButtonState == LOW){
-    if (addressableStrip) {
-      Black();
-      FastLED.show();
-      digitalWrite(IND_PIN,HIGH);
-      addressableStrip = false;
-       //delay(20);
-    }
-    else{
-      Black();
-      digitalWrite(IND_PIN,LOW);
-      addressableStrip = true;
-      //delay(20);
-    }
-    }
-    prevSSButtonState = currSSButtonState;*/
+  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
 
-void rising() {
-  //prev_time = micros();
+void ISRrising() {
   TCNT1  = 1;//initialize counter value to 0, reset heatbeat
   prev_time = TCNT1;
   inPulse = true;
   updatedLEDs = false;
 
-  attachInterrupt(digitalPinToInterrupt(2), falling, FALLING);
+  attachInterrupt(digitalPinToInterrupt(2), ISRfalling, FALLING);
 }
 
-void falling() {
+void ISRfalling() {
   detachInterrupt(digitalPinToInterrupt(2));
-  old_pwm = pwm_value;
-  //pwm_value = micros() - prev_time;
   pwm_value = TCNT1 - prev_time;
-  prev_time = 0;
-  //TCNT1  = 1;//initialize counter value to 0, reset heatbeat
 
-  //If time value is reasonable call and update the LED outputs
-  //if value is unreasonable, disregard reading and use last value to update LED outputs
-  //reset interrupt
-
-
-  //if ((pwm_value < 2300) && (pwm_value > 750))
   if ((pwm_value < 4800) && (pwm_value > 1200))
   {
-    //pwm_value
-    //currentPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
-    currentPattern = map(pwm_value, 1600, 4400, 0, (ARRAY_SIZE(gPatterns)));
     patternHistory.unshift(map(pwm_value, 1600, 4400, 0, (ARRAY_SIZE(gPatterns))));
   }
 
-  /*    if ((pwm_value < 2300) && (pwm_value > 750))
-      {
-        //pwm_value
-        //currentPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
-        if ((prevPattern != map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)))) && (prevPattern != prev2Pattern)){
-          currentPattern = prev2Pattern;
-          prev2Pattern = prevPattern;
-          prevPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
-        }
-        currentPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
-        prev2Pattern = prevPattern;
-        prevPattern = currentPattern;
-      }*/
-
-  //prevPattern = currentPattern;
-
-  //TCNT1  = 1;//initialize counter value to 0, reset heatbeat
-
   prev_time = 0;
   inPulse = false;
+}
+
+void ledUpdate()
+{
+    //check that the pattern value has been stable 
+    for (int i = 0 ; i< patternHistory.capacity() ; i++){
+      if (patternHistory[0] != patternHistory[i])
+        patternStable = false;
+    }
+    
+    if (patternStable){
+      gPatterns[patternHistory[0]]();        
+    }
+    else{
+      gPatterns[patternHistory.last()];
+    }   
+    
+    patternStable = true;
+    
+    // send the 'leds' array out to the actual LED strip
+    //30uS per LED for addressable
+    if (addressableStrip == true) {      
+      //update LED display
+      FastLED.show();
+    }
+    
+    attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
+    updatedLEDs = true;
+}
+
+void buttonHandler()
+{
+  //currSSButtonState = digitalRead(SS_PIN);
+
+  if(digitalRead(SS_PIN) == LOW)
+  {
+    ssButtonHoldCount++;
+  }
+  else
+  {
+    if (ssButtonHoldCount > 1000){
+      ssButtonHoldCount = 0;
+      toggleStripSelect();
+    }
+    ssButtonHoldCount = 0;
+  }
+
+
+  if(digitalRead(MODE_PIN) == LOW)
+  {
+    modeButtonHoldCount++;
+  }
+  else
+  {
+    if (modeButtonHoldCount > 1000){
+      modeButtonHoldCount = 0;
+      setupMode();
+    }
+    modeButtonHoldCount = 0;
+  }
+
+}
+
+void toggleStripSelect()
+{
+    if (addressableStrip) {
+      Black();
+      FastLED.show();
+      digitalWrite(IND_PIN,HIGH);
+      addressableStrip = false;
+      //delay(20);
+      //EEPROM write takes 3.3ms
+      EEPROM.write(0, addressableStrip);
+    }
+    else{
+      Black();
+      digitalWrite(IND_PIN,LOW);
+      addressableStrip = true;
+      //EEPROM write takes 3.3ms
+      EEPROM.write(0, addressableStrip);
+    }
+  
+}
+
+void setupMode()
+{
+
+
+  
 }
 
 // showAnalogRGB: this is like FastLED.show(), but outputs on
