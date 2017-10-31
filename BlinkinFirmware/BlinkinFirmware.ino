@@ -19,20 +19,29 @@
 #define GREENPIN 6
 #define BLUEPIN  3
 
-//Analog Inputs for Color Selections
-#define COLOR1_PIN      A0 //Analog2
-#define COLOR2_PIN      A6 //Analog0
-#define LENGTH_PIN      A7 //Analog1
+////Analog Status RGB LED Pins
+#define sREDPIN   9
+#define sGREENPIN 10
+//#define sBLUEPIN  11
 
-#define BRIGHTNESS  128
+
+//Analog Inputs for Color Selections
+#define COLOR1_PIN      A6 
+#define COLOR2_PIN      A7 
+#define LENGTH_PIN      A0 
+
+#define BRIGHTNESS  100
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS 144
+//#define NUM_LEDS 288
 #define FRAMES_PER_SECOND 120
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-CRGB leds[NUM_LEDS];
+unsigned int NUM_LEDS = 144;
+unsigned int prevNUM_LEDS = 144;
+
+CRGB leds[288];
 
 volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
@@ -41,15 +50,19 @@ volatile uint16_t prev_time = 0;
 
 volatile boolean inPulse = false;
 volatile boolean updatedLEDs = true;
+volatile boolean inSetup = false;
+
 //volatile uint16_t pulseCount = 1500;
 
-boolean prevModeButtonState = HIGH;
-boolean currModeButtonState = HIGH;
-uint16_t modeButtonHoldCount = 0;
+//boolean prevModeButtonState = HIGH;
+//boolean currModeButtonState = HIGH;
+unsigned long modeButtonHoldCount = 0;
 unsigned int ssButtonHoldCount = 0;
 
-boolean prevSSButtonState = HIGH;
-boolean currSSButtonState = HIGH;
+
+
+//boolean prevSSButtonState = HIGH;
+//boolean currSSButtonState = HIGH;
 
 boolean addressableStrip = true;
 
@@ -58,6 +71,9 @@ TBlendType    currentBlending;
 
 CircularBuffer<short,5> patternHistory; // uses 538 bytes 
 bool patternStable = true;
+
+CircularBuffer<short,15> lengthHistory; // uses 538 bytes 
+bool lengthStable = true;
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
@@ -71,13 +87,9 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 void setup() {
 
   //Intialize ring buffer
-  patternHistory.unshift(0);
-  patternHistory.unshift(0);
-  patternHistory.unshift(0);
-  patternHistory.unshift(0);
-  patternHistory.unshift(0);
 
   addressableStrip = EEPROM.read(0);
+  NUM_LEDS = EEPROM.read(1);
   
   for (int i = 0 ; i< patternHistory.capacity() ; i++){
       patternHistory.unshift(0);
@@ -117,6 +129,16 @@ void setup() {
   digitalWrite(GREENPIN, LOW);
   digitalWrite(BLUEPIN, LOW);
 
+
+  pinMode(sREDPIN,   OUTPUT);
+  pinMode(sGREENPIN, OUTPUT);
+//  pinMode(sBLUEPIN,  OUTPUT);
+//
+  digitalWrite(sREDPIN, HIGH);
+  digitalWrite(sGREENPIN, LOW);
+//  digitalWrite(sBLUEPIN, HIGH);
+
+
   pinMode(MODE_PIN, INPUT);
   digitalWrite(MODE_PIN, INPUT_PULLUP);  // set pullup on analog pin 0
   pinMode(SS_PIN, INPUT);
@@ -145,6 +167,9 @@ SimplePatternList gPatterns = { Black, rainbow, rainbowWithGlitter, confetti, si
 void loop() {
 
   buttonHandler();
+  if (inSetup){
+    readUserInputs();
+  }
 
   if ((inPulse == false) && (updatedLEDs == false)){
     ledUpdate();
@@ -218,9 +243,43 @@ void ledUpdate()
     updatedLEDs = true;
 }
 
+void readUserInputs()
+{
+  //read Pot value and translate to colors
+  //prevNUM_LEDS = NUM_LEDS;
+
+  lengthHistory.unshift(map(analogRead(LENGTH_PIN), 0, 1023, 1, 288));
+
+    //check that the pattern value has been stable 
+    for (int i = 0 ; i< lengthHistory.capacity() ; i++){
+      if (lengthHistory[0] != lengthHistory[i])
+        lengthStable = false;
+    }
+    
+    if (lengthStable){
+      if (NUM_LEDS > lengthHistory[0]){
+         Black();
+         FastLED.show();
+      }
+      NUM_LEDS = lengthHistory[0];
+      FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);           
+    }   
+
+      lengthStable = true;
+
+      
+//  if (prevNUM_LEDS != NUM_LEDS)
+//  {
+//      Black();
+//      FastLED.show();
+//      FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+//  }
+  
+}
+
 void buttonHandler()
 {
-  //currSSButtonState = digitalRead(SS_PIN);
+  
 
   if(digitalRead(SS_PIN) == LOW)
   {
@@ -239,13 +298,22 @@ void buttonHandler()
   if(digitalRead(MODE_PIN) == LOW)
   {
     modeButtonHoldCount++;
+    if (inSetup){
+      if (modeButtonHoldCount > 5000){
+        modeButtonHoldCount = 0;
+        setupMode();
+      }
+    }
+    else{
+      if (modeButtonHoldCount > 100000){
+        modeButtonHoldCount = 0;
+        setupMode();
+    }
+
+    }
   }
   else
   {
-    if (modeButtonHoldCount > 1000){
-      modeButtonHoldCount = 0;
-      setupMode();
-    }
     modeButtonHoldCount = 0;
   }
 
@@ -260,23 +328,42 @@ void toggleStripSelect()
       addressableStrip = false;
       //delay(20);
       //EEPROM write takes 3.3ms
-      EEPROM.write(0, addressableStrip);
+      //EEPROM.write(0, addressableStrip);
     }
     else{
       Black();
       digitalWrite(IND_PIN,LOW);
       addressableStrip = true;
       //EEPROM write takes 3.3ms
-      EEPROM.write(0, addressableStrip);
+      //EEPROM.write(0, addressableStrip);
     }
   
 }
 
 void setupMode()
 {
+  inSetup = !inSetup;
 
+  if (inSetup){
+    //??
+    digitalWrite(sREDPIN, LOW);
+    digitalWrite(sGREENPIN, HIGH);
+    //NUM_LEDS = 144;
+      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  }
+  //Exit set-up
+  else{
+    digitalWrite(sREDPIN, HIGH);
+    digitalWrite(sGREENPIN, LOW);
+      //Black();
+      //FastLED.show();
+      //NUM_LEDS = 100;
+      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+    //write variable to EEPROM
+    //resume normal operation
+    EEPROM.write(1, NUM_LEDS);    
+  }
 
-  
 }
 
 // showAnalogRGB: this is like FastLED.show(), but outputs on
@@ -291,6 +378,13 @@ void showAnalogRGB( const CRGB& rgb)
   analogWrite(GREENPIN, rgb.g );
   analogWrite(BLUEPIN,  rgb.b );
 }
+
+//void showStatusRGB( const CRGB& rgb)
+//{
+//  analogWrite(sREDPIN,   rgb.r );
+//  analogWrite(sGREENPIN, rgb.g );
+//  analogWrite(sBLUEPIN,  rgb.b );
+//}
 
 void testPattern()
 {
@@ -410,16 +504,17 @@ void juggle() {
 }
 
 
-#define SPARKING 100
-#define COOLING  65
+#define SPARKING 120
+#define COOLING  80
 bool gReverseDirection = false;
 void Fire2012()
 {
 
   if (addressableStrip == true) {
     // Array of temperature readings at each simulation cell
-    static byte heat[NUM_LEDS];
+    static byte heat[144];
 
+    
     // Step 1.  Cool down every cell a little
     for ( int i = 0; i < NUM_LEDS; i++) {
       heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS) + 2));
