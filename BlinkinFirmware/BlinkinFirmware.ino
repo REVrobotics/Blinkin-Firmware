@@ -157,6 +157,7 @@ void loop() {
 }
 
 
+
 ISR(TIMER1_COMPA_vect) { 
 
   patternHistory.unshift(14);
