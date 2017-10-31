@@ -2,6 +2,9 @@
 #define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
+#define CIRCULAR_BUFFER_XS
+#include <CircularBuffer.h>
+
 //FASTLED_USING_NAMESPACE
 
 #define LED_PIN     7 //Data line for addressable strip
@@ -54,7 +57,9 @@ volatile int currentPattern = 0;
 //volatile int prevPattern = 0;
 //volatile int prev2Pattern = 0;
 
-int* freq[] = { 1500, 1500, 1500 };
+//int patternHistory[] = { 0, 0, 0, 0 ,0 };
+CircularBuffer<short,5> patternHistory; // uses 538 bytes 
+bool patternStable = true;
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
@@ -66,6 +71,13 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 
 void setup() {
+
+  //Intialize ring buffer
+  patternHistory.unshift(0);
+  patternHistory.unshift(0);
+  patternHistory.unshift(0);
+  patternHistory.unshift(0);
+  patternHistory.unshift(0);
 
   //set timer1 interrupt at 1Hz
   TCCR1A = 0;// set entire TCCR1A register to 0
@@ -123,7 +135,7 @@ void setup() {
 
 //List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = { rainbow, rainbowWithGlitter, confetti, sinelon, juggle, bpm, Fire2012, teamSparkle, HotPink, Red, DarkOrange, Yellow, Gold, Lime, Green, Aqua, Blue, BlueViolet, White, Black };
+SimplePatternList gPatterns = { Black, rainbow, rainbowWithGlitter, confetti, sinelon, juggle, bpm, Fire2012, teamSparkle, HotPink, Red, DarkOrange, Yellow, Gold, Lime, Green, Aqua, Blue, BlueViolet, White };
 
 
 void loop() {
@@ -135,9 +147,27 @@ void loop() {
     // send the 'leds' array out to the actual LED strip
     //30uS per LED for addressable
     if (addressableStrip == true) {
-      gPatterns[currentPattern]();
-      //gPatterns[4]();
+      //gPatterns[currentPattern]();
+
+      //check that the pattern value has been stable 
+      for (int i = 0 ; i< patternHistory.capacity() ; i++){
+        if (patternHistory[0] != patternHistory[i])
+          patternStable = false;
+      }
+
+
+      if (patternStable){
+        gPatterns[patternHistory[0]]();        
+      }
+      else{
+        gPatterns[patternHistory.last()];
+      }
+
+      
+      //update LED display
       FastLED.show();
+
+      patternStable = true;
     }
 
     attachInterrupt(digitalPinToInterrupt(2), rising, RISING);
@@ -213,7 +243,7 @@ void falling() {
     //pwm_value
     //currentPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
     currentPattern = map(pwm_value, 1600, 4400, 0, (ARRAY_SIZE(gPatterns)));
-
+    patternHistory.unshift(map(pwm_value, 1600, 4400, 0, (ARRAY_SIZE(gPatterns))));
   }
 
   /*    if ((pwm_value < 2300) && (pwm_value > 750))
