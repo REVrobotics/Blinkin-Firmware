@@ -184,8 +184,15 @@ void loop() {
 
 ISR(TIMER1_COMPA_vect) { //timer1 interrupt 1Hz
 //ISR(TIMER1_OVF_vect){
-  currentPattern = 13;
+  //currentPattern = 13;
   //gPatterns[currentPattern]();
+
+//  for (int i = 0 ; i<patternHistory.capacity() ; i++){
+//      patternHistory.unshift(13);
+//  }
+
+  patternHistory.unshift(14);
+  
   updatedLEDs = false;
   inPulse = false;
   //TCNT1  = 0;//initialize counter value to 0, reset heatbeat
