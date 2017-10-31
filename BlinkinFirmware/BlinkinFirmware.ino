@@ -54,6 +54,8 @@ volatile int currentPattern = 0;
 //volatile int prevPattern = 0;
 //volatile int prev2Pattern = 0;
 
+int* freq[] = { 1500, 1500, 1500 };
+
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 //typedef void (*SimplePatternList[])();
@@ -68,15 +70,20 @@ void setup() {
   //set timer1 interrupt at 1Hz
   TCCR1A = 0;// set entire TCCR1A register to 0
   TCCR1B = 0;// same for TCCR1B
-  TCNT1  = 0;//initialize counter value to 0
+  TCNT1  = 1;//initialize counter value to 0
   // set compare match register for 1hz increments
-  OCR1A = 8192;// = (16*10^6) / (1*1024) - 1 (must be <65536)
+  OCR1A = 65000;//8192;// = (16*10^6) / (1*1024) - 1 (must be <65536)
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
   // Set CS10 and CS12 bits for 1024 prescaler
-  TCCR1B |= (1 << CS12) | (1 << CS10);
+  //TCCR1B |= (1 << CS12) | (1 << CS10);
+  // Set CS11 for 8 prescaler
+  TCCR1B |= (1 << CS11);
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
+  // enable timer overflow interrupt
+  //TIMSK1 |= (1 << TOIE1);
+  
 
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setBrightness( BRIGHTNESS );
@@ -146,7 +153,7 @@ void loop() {
 
 
 ISR(TIMER1_COMPA_vect) { //timer1 interrupt 1Hz
-
+//ISR(TIMER1_OVF_vect){
   currentPattern = 13;
   //gPatterns[currentPattern]();
   updatedLEDs = false;
@@ -178,17 +185,20 @@ ISR(TIMER1_COMPA_vect) { //timer1 interrupt 1Hz
 }
 
 void rising() {
-  prev_time = micros();
+  //prev_time = micros();
+  TCNT1  = 1;//initialize counter value to 0, reset heatbeat
+  prev_time = TCNT1;
   inPulse = true;
   updatedLEDs = false;
-  TCNT1  = 1;//initialize counter value to 0, reset heatbeat
+
   attachInterrupt(digitalPinToInterrupt(2), falling, FALLING);
 }
 
 void falling() {
   detachInterrupt(digitalPinToInterrupt(2));
   old_pwm = pwm_value;
-  pwm_value = micros() - prev_time;
+  //pwm_value = micros() - prev_time;
+  pwm_value = TCNT1 - prev_time;
   prev_time = 0;
   //TCNT1  = 1;//initialize counter value to 0, reset heatbeat
 
@@ -196,10 +206,14 @@ void falling() {
   //if value is unreasonable, disregard reading and use last value to update LED outputs
   //reset interrupt
 
-  if ((pwm_value < 2300) && (pwm_value > 750))
+
+  //if ((pwm_value < 2300) && (pwm_value > 750))
+  if ((pwm_value < 4800) && (pwm_value > 1200))
   {
     //pwm_value
-    currentPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
+    //currentPattern = map(pwm_value, 799, 2201, 0, (ARRAY_SIZE(gPatterns)));
+    currentPattern = map(pwm_value, 1600, 4400, 0, (ARRAY_SIZE(gPatterns)));
+
   }
 
   /*    if ((pwm_value < 2300) && (pwm_value > 750))
@@ -217,6 +231,8 @@ void falling() {
       }*/
 
   //prevPattern = currentPattern;
+
+  //TCNT1  = 1;//initialize counter value to 0, reset heatbeat
 
   prev_time = 0;
   inPulse = false;
