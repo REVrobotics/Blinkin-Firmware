@@ -9,6 +9,8 @@
 
 //FASTLED_USING_NAMESPACE
 
+#define writeEEPROM false
+
 #define LED_PIN     7 //Data line for addressable strip
 #define IND_PIN     4 //Digital pin to indicate Analog vs Addressable LEDs Strip Select
 #define MODE_PIN    A3 //Button 2 - Programming Mode Button
@@ -24,7 +26,6 @@
 #define sGREENPIN 10
 //#define sBLUEPIN  11
 
-
 //Analog Inputs for Color Selections
 #define COLOR1_PIN      A6 
 #define COLOR2_PIN      A7 
@@ -39,43 +40,40 @@
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
 unsigned int NUM_LEDS = 144;
-unsigned int prevNUM_LEDS = 144;
 
 CRGB leds[288];
 
 volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
-//volatile uint16_t old_pwm = 1500;
-//volatile uint16_t prev_pwm = 1500;
 
 volatile boolean inPulse = false;
 volatile boolean updatedLEDs = true;
 volatile boolean inSetup = false;
 
-//volatile uint16_t pulseCount = 1500;
-
-//boolean prevModeButtonState = HIGH;
-//boolean currModeButtonState = HIGH;
 unsigned long modeButtonHoldCount = 0;
 unsigned int ssButtonHoldCount = 0;
-
-
-
-//boolean prevSSButtonState = HIGH;
-//boolean currSSButtonState = HIGH;
 
 boolean addressableStrip = true;
 
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
 
-CircularBuffer<short,5> patternHistory; // uses 538 bytes 
+CircularBuffer<short,5> patternHistory;  
 bool patternStable = true;
 
-CircularBuffer<short,15> lengthHistory; // uses 538 bytes 
+CircularBuffer<short,15> lengthHistory; 
 bool lengthStable = true;
 
+CircularBuffer<short,5> color1History; 
+bool color1Stable = true;
+char COLOR1 = 5;
+
+CircularBuffer<short,5> color2History;  
+bool color2Stable = true;
+char COLOR2 = 3;
+
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+static uint8_t startIndex = 0;
 
 //typedef void (*SimplePatternList[])();
 //SimplePatternList potColors = { "HotPink", "Red", "DarkOrange", "Yellow", "Gold", "Lime", "Green", "Aqua", "Blue", "BlueViolet", "White", "Black"};
@@ -89,7 +87,9 @@ void setup() {
   //Intialize ring buffer
 
   addressableStrip = EEPROM.read(0);
-  NUM_LEDS = EEPROM.read(1);
+  COLOR1 = EEPROM.read(1);
+  COLOR2 = EEPROM.read(2);
+  NUM_LEDS = EEPROM.read(3);
   
   for (int i = 0 ; i< patternHistory.capacity() ; i++){
       patternHistory.unshift(0);
@@ -98,9 +98,9 @@ void setup() {
   //set timer1 interrupt at 1Hz
   TCCR1A = 0;// set entire TCCR1A register to 0
   TCCR1B = 0;// same for TCCR1B
-  TCNT1  = 1;//initialize counter value to 0
+  TCNT1  = 1;//initialize counter value to 1, 0 triggers interrupt
   // set compare match register for 1hz increments
-  OCR1A = 65000;//8192;// = (16*10^6) / (1*1024) - 1 (must be <65536)
+  OCR1A = 65000; // (must be <65536)
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
   // Set CS10 and CS12 bits for 1024 prescaler
@@ -115,6 +115,9 @@ void setup() {
 
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setBrightness( BRIGHTNESS );
+
+  currentPalette = RainbowColors_p;
+  currentBlending = LINEARBLEND;
 
   pinMode(IND_PIN, OUTPUT);
 
@@ -163,6 +166,8 @@ void setup() {
 typedef void (*SimplePatternList[])();
 SimplePatternList gPatterns = { Black, rainbow, rainbowWithGlitter, confetti, sinelon, juggle, bpm, Fire2012, teamSparkle, HotPink, Red, DarkOrange, Yellow, Gold, Lime, Green, Aqua, Blue, BlueViolet, White };
 
+CRGB colorList[] = {CRGB::HotPink, CRGB::Red, CRGB::DarkOrange, CRGB::Yellow, CRGB::Gold, CRGB::Lime, CRGB::Green, CRGB::Aqua, CRGB::Blue, CRGB::BlueViolet , CRGB::White, CRGB::Black};
+
 
 void loop() {
 
@@ -173,6 +178,7 @@ void loop() {
 
   if ((inPulse == false) && (updatedLEDs == false)){
     ledUpdate();
+    startIndex = startIndex + 1; /* motion speed */
   }
 
   // do some periodic updates
@@ -180,7 +186,6 @@ void loop() {
     gHue++;  // slowly cycle the "base color" through the rainbow
   }
 }
-
 
 
 ISR(TIMER1_COMPA_vect) { 
@@ -245,8 +250,7 @@ void ledUpdate()
 
 void readUserInputs()
 {
-  //read Pot value and translate to colors
-  //prevNUM_LEDS = NUM_LEDS;
+  //read Pot value and translate to colors/strip Length
 
   lengthHistory.unshift(map(analogRead(LENGTH_PIN), 0, 1023, 1, 288));
 
@@ -258,6 +262,7 @@ void readUserInputs()
     
     if (lengthStable){
       if (NUM_LEDS > lengthHistory[0]){
+         //need loop to only update pixels to black that are > then new length
          Black();
          FastLED.show();
       }
@@ -265,15 +270,39 @@ void readUserInputs()
       FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);           
     }   
 
-      lengthStable = true;
+    lengthStable = true;
 
-      
-//  if (prevNUM_LEDS != NUM_LEDS)
-//  {
-//      Black();
-//      FastLED.show();
-//      FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-//  }
+
+    color1History.unshift(map(analogRead(COLOR1_PIN), 0, 1023, 0, 11));
+
+    //check that the pattern value has been stable 
+    for (int i = 0 ; i< color1History.capacity() ; i++){
+      if (color1History[0] != color1History[i])
+        lengthStable = false;
+    }
+    
+    if (color1Stable){
+      COLOR1 = color1History[0];         
+    }   
+
+    color1Stable = true;
+
+
+    color2History.unshift(map(analogRead(COLOR2_PIN), 0, 1023, 0, 11));
+
+    //check that the pattern value has been stable 
+    for (int i = 0 ; i< color2History.capacity() ; i++){
+      if (color2History[0] != color2History[i])
+        lengthStable = false;
+    }
+    
+    if (color2Stable){
+      COLOR2 = color2History[0];         
+    }   
+
+    SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
+    color2Stable = true;
+
   
 }
 
@@ -289,7 +318,8 @@ void buttonHandler()
   {
     if (ssButtonHoldCount > 1000){
       ssButtonHoldCount = 0;
-      toggleStripSelect();
+      //SetupCustomPalette(colorList[1], colorList[6]);
+      //toggleStripSelect();
     }
     ssButtonHoldCount = 0;
   }
@@ -308,34 +338,36 @@ void buttonHandler()
       if (modeButtonHoldCount > 100000){
         modeButtonHoldCount = 0;
         setupMode();
-    }
-
+      }
     }
   }
   else
   {
     modeButtonHoldCount = 0;
   }
-
 }
 
 void toggleStripSelect()
 {
-    if (addressableStrip) {
+    if (addressableStrip) 
+    {
       Black();
       FastLED.show();
       digitalWrite(IND_PIN,HIGH);
       addressableStrip = false;
       //delay(20);
       //EEPROM write takes 3.3ms
-      //EEPROM.write(0, addressableStrip);
+      if(writeEEPROM)
+          EEPROM.write(0, addressableStrip);
     }
-    else{
+    else
+    {
       Black();
       digitalWrite(IND_PIN,LOW);
       addressableStrip = true;
       //EEPROM write takes 3.3ms
-      //EEPROM.write(0, addressableStrip);
+      if(writeEEPROM)
+        EEPROM.write(0, addressableStrip);
     }
   
 }
@@ -348,20 +380,21 @@ void setupMode()
     //??
     digitalWrite(sREDPIN, LOW);
     digitalWrite(sGREENPIN, HIGH);
-    //NUM_LEDS = 144;
-      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   }
   //Exit set-up
   else{
     digitalWrite(sREDPIN, HIGH);
     digitalWrite(sGREENPIN, LOW);
-      //Black();
-      //FastLED.show();
-      //NUM_LEDS = 100;
-      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+
     //write variable to EEPROM
+    if(writeEEPROM)
+    {
+      EEPROM.write(1, COLOR1);  
+      EEPROM.write(2, COLOR2);  
+      EEPROM.write(3, NUM_LEDS);  
+    }
+      
     //resume normal operation
-    EEPROM.write(1, NUM_LEDS);    
   }
 
 }
@@ -379,12 +412,20 @@ void showAnalogRGB( const CRGB& rgb)
   analogWrite(BLUEPIN,  rgb.b );
 }
 
-//void showStatusRGB( const CRGB& rgb)
-//{
-//  analogWrite(sREDPIN,   rgb.r );
-//  analogWrite(sGREENPIN, rgb.g );
-//  analogWrite(sBLUEPIN,  rgb.b );
-//}
+void SetupCustomPalette(CRGB color1, CRGB color2)
+{
+    //CRGB color1  = CHSV( HUE_GREEN, 255, 255);
+    //CRGB color2 = CHSV( HUE_PURPLE, 255, 255);
+
+    
+    currentPalette = CRGBPalette16(
+                                   color1,  color1,  color1,  color2,
+                                   color1, color1, color1,  color2,
+                                   color1,  color1,  color1,  color2,
+                                   color1, color1, color1,  color2 );
+}
+
+
 
 void testPattern()
 {
@@ -401,11 +442,19 @@ void testPattern()
   }
 }
 
+
 void rainbow()
 {
   if (addressableStrip == true) {
+
+    uint8_t colorIndex = startIndex;
+    currentBlending = NOBLEND;
+    
     // FastLED's built-in rainbow generator
-    fill_rainbow( leds, NUM_LEDS, gHue, 7);
+    for( int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = ColorFromPalette( currentPalette, colorIndex, BRIGHTNESS, currentBlending);
+        colorIndex += 3;
+    }
   }
   else {
     gHue = gHue + 1;
@@ -414,6 +463,21 @@ void rainbow()
     delay(5);
   }
 }
+
+//
+//void rainbow()
+//{
+//  if (addressableStrip == true) {
+//    // FastLED's built-in rainbow generator
+//    fill_rainbow( leds, NUM_LEDS, gHue, 7);
+//  }
+//  else {
+//    gHue = gHue + 1;
+//    // Use FastLED automatic HSV->RGB conversion
+//    showAnalogRGB( CHSV( gHue, 255, 255) );
+//    delay(5);
+//  }
+//}
 
 void rainbowWithGlitter()
 {
