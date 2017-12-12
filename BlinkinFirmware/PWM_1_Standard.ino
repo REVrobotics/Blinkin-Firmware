@@ -1,16 +1,3 @@
-// showAnalogRGB: this is like FastLED.show(), but outputs on
-// analog PWM output pins instead of sending data to an intelligent,
-// pixel-addressable LED strip.
-//
-// This function takes the incoming RGB values and outputs the values
-// on three analog PWM output pins to the r, g, and b values respectively.
-void showAnalogRGB( const CRGB& rgb)
-{
-  analogWrite(REDPIN,   rgb.r );
-  analogWrite(GREENPIN, rgb.g );
-  analogWrite(BLUEPIN,  rgb.b );
-}
-
 
 
 
@@ -19,49 +6,37 @@ void rainbow()
   if (addressableStrip == true) {
 
     uint8_t colorIndex = startIndex;
-    currentBlending = NOBLEND;
     
     // FastLED's built-in rainbow generator
     for( int i = 0; i < NUM_LEDS; i++) {
         leds[i] = ColorFromPalette( currentPalette, colorIndex, BRIGHTNESS, currentBlending);
-        colorIndex += 3;
+        colorIndex += 3; 
     }
   }
   else {
-    gHue = gHue + 1;
+    //gHue = gHue + 1;
+    gHue = gHue + (patternSpeed/3);
     // Use FastLED automatic HSV->RGB conversion
-    showAnalogRGB( CHSV( gHue, 255, 255) );
-    delay(5);
+    //showAnalogRGB( CHSV( gHue, 255, 255) );
+    showAnalogRGB( CHSV( gHue, 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
+    //delay(5);
   }
 }
 
-//
-//void rainbow()
-//{
-//  if (addressableStrip == true) {
-//    // FastLED's built-in rainbow generator
-//    fill_rainbow( leds, NUM_LEDS, gHue, 7);
-//  }
-//  else {
-//    gHue = gHue + 1;
-//    // Use FastLED automatic HSV->RGB conversion
-//    showAnalogRGB( CHSV( gHue, 255, 255) );
-//    delay(5);
-//  }
-//}
 
 void rainbowWithGlitter()
 {
   if (addressableStrip == true) {
     // built-in FastLED rainbow, plus some random sparkly glitter
     rainbow();
-    addGlitter(80, CRGB::White);
+    //addGlitter(80, CRGB::White);
+    addGlitter(map(analogRead(COLOR1_PIN), 0, 1023, 30, 255), CRGB::White);
   }
   else {
-    gHue = gHue + 1;
+    //gHue = gHue + 1;
     // Use FastLED automatic HSV->RGB conversion
-    showAnalogRGB( CHSV( gHue, 255, 255) );
-    delay(15);
+
+    rainbow();
   }
 }
 
@@ -69,8 +44,8 @@ void addGlitter( fract8 chanceOfGlitter, CRGB gColor)
 {
   if (addressableStrip == true) {
     if ( random8() < chanceOfGlitter) {
-      //leds[ random16(NUM_LEDS) ] += CRGB::White;
-      leds[ random16(NUM_LEDS) ] = gColor;
+      //leds[ random16(NUM_LEDS) ] += CRGB::Black;
+      leds[ random8(NUM_LEDS) ] = gColor;
     }
   }
   else {
@@ -83,11 +58,12 @@ void confetti()
   if (addressableStrip == true) {
     // random colored speckles that blink in and fade smoothly
     fadeToBlackBy( leds, NUM_LEDS, 10);
-    int pos = random16(NUM_LEDS);
+    int pos = random8(NUM_LEDS);
     leds[pos] += CHSV( gHue + random8(64), 200, 255);
   }
   else {
     //flash bright rand colors
+  
   }
 
 }
@@ -96,11 +72,9 @@ void confetti()
 void sinelon()
 {
   if (addressableStrip == true) {
-  // a colored dot sweeping 
-  // back and forth, with 
-  // fading trails
+  // a colored dot sweeping back and forth, with fading trails
   fadeToBlackBy( leds, NUM_LEDS, 20);
-  int pos = beatsin16(13,0,NUM_LEDS);
+  int pos = beatsin8(patternSpeed,0,NUM_LEDS);
   static int prevpos = 0;
   if( pos < prevpos ) { 
     fill_solid( leds+pos, (prevpos-pos)+1, CHSV(gHue,220,255));
@@ -122,8 +96,10 @@ void bpm()
     uint8_t BeatsPerMinute = 62;
     CRGBPalette16 palette = PartyColors_p;
     uint8_t beat = beatsin8( BeatsPerMinute, 64, 255);
-    for ( int i = 0; i < NUM_LEDS; i++) { //9948
-      leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
+    //uint8_t beat = beatsin8( map(patternSpeed, 0, 30, 10, 200), 0, 255);
+    for ( int i = 0; i < NUM_LEDS; i++) { 
+      //leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i *30));
+      leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * map(analogRead(COLOR1_PIN), 0, 1023, 5, 30)));
     }
   }
   else {

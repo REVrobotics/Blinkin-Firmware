@@ -4,6 +4,7 @@ void HotPink() {
   }
   else {
     showAnalogRGB( CRGB::HotPink );
+    showAnalogRGB( CHSV( 250 , 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
   }
 }
 
@@ -12,7 +13,8 @@ void Red() {
     fill_solid( leds, NUM_LEDS, CRGB::Red );
   }
   else {
-    showAnalogRGB( CRGB::Red );
+    //showAnalogRGB( CRGB::Red );
+    showAnalogRGB( CHSV( 0 , 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
   }
 }
 
@@ -21,16 +23,8 @@ void DarkOrange() {
     fill_solid( leds, NUM_LEDS, CRGB::DarkOrange );
   }
   else {
-    showAnalogRGB( CRGB::DarkOrange );
-  }
-}
-
-void Yellow() {
-  if (addressableStrip == true) {
-    fill_solid( leds, NUM_LEDS, CRGB::Yellow );
-  }
-  else {
-    showAnalogRGB( CRGB::Yellow );
+    //showAnalogRGB( CRGB::DarkOrange );
+    showAnalogRGB( CHSV( 15 , 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
   }
 }
 
@@ -39,9 +33,22 @@ void Gold() {
     fill_solid( leds, NUM_LEDS, CRGB::Gold );
   }
   else {
-    showAnalogRGB( CRGB::Gold );
+    //showAnalogRGB( CRGB::Gold );
+    showAnalogRGB( CHSV( 25 , 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
   }
 }
+
+void Yellow() {
+  if (addressableStrip == true) {
+    fill_solid( leds, NUM_LEDS, CRGB::Yellow );
+  }
+  else {
+    //showAnalogRGB( CRGB::Yellow );
+    showAnalogRGB( CHSV( 40 , 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
+  }
+}
+
+
 
 void Lime() {
   if (addressableStrip == true) {

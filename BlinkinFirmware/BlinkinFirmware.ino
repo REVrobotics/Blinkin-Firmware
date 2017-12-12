@@ -53,7 +53,7 @@ void setup() {
 
   digitalWrite(sREDPIN, HIGH);
   digitalWrite(sGREENPIN, HIGH);
-  digitalWrite(sBLUEPIN, LOW);
+  digitalWrite(sBLUEPIN, HIGH);
 
 
   pinMode(MODE_PIN, INPUT);
@@ -77,31 +77,31 @@ void setup() {
 
 }
 
-//List of patterns to cycle through.  Each is defined as a separate function below.
+//List of patterns to cycle through.  Each is defined as a separate function in the specified tab.
 typedef void (*SimplePatternList[])();
 SimplePatternList gPatterns = {
-  Black,
-  rainbow,
-  rainbowWithGlitter,
-  confetti,
-  sinelon,
-  EndtoEndBlend,
-  EndtoEndStaticBlend,
-  juggle,
-  bpm,
-  Fire2012,
-  teamSparkle,
-  HotPink,
-  Red,
-  DarkOrange,
-  Yellow,
-  Gold,
-  Lime,
-  Green,
-  Aqua,
-  Blue,
-  BlueViolet,
-  White
+  rainbow,                      //PWM_1_Standard
+  rainbowWithGlitter,           //PWM_1_Standard
+  confetti,                     //PWM_1_Standard
+  sinelon,                      //PWM_1_Standard
+  juggle,                       //PWM_1_Standard
+  bpm,                          //PWM_1_Standard
+  Fire2012,                     //PWM_1_Standard
+  teamSparkle,                  //PWM_4_Color1_2
+  EndtoEndBlend,                //PWM_4_Color1_2
+  EndtoEndStaticBlend,          //PWM_4_Color1_2
+  HotPink,                      //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  DarkOrange,                   //PWM_5_Solid
+  Gold,                         //PWM_5_Solid
+  Yellow,                       //PWM_5_Solid
+  Lime,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Aqua,                         //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  BlueViolet,                   //PWM_5_Solid
+  White,                        //PWM_5_Solid
+  Black                         //PWM_5_Solid
 };
 
 
@@ -114,16 +114,19 @@ void loop() {
 
   if ((inPulse == false) && (updatedLEDs == false)) {
     ledUpdate();
-    startIndex = startIndex + 1; /* motion speed */
+//    startIndex = startIndex + patternSpeed; /* motion speed */
   }
 
   // do some periodic updates
-  EVERY_N_MILLISECONDS( 20 ) {
+  EVERY_N_MILLISECONDS( 50 ) {
     gHue++;  // slowly cycle the "base color" through the rainbow
     //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
+    FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
+    patternSpeed = map(analogRead(COLOR2_PIN), 0, 1023, 1, 30);
+    startIndex = startIndex + patternSpeed; /* motion speed */
+    
   }
 }
-
 
 ISR(TIMER1_COMPA_vect) {
 
@@ -186,6 +189,19 @@ void ledUpdate()
 }
 
 
+// This function takes the incoming RGB values and outputs the values
+// on three analog PWM output pins to the r, g, and b values respectively.
+void showAnalogRGB( const CRGB& rgb)
+{
+  analogWrite(REDPIN,   rgb.r );
+  analogWrite(GREENPIN, rgb.g );
+  analogWrite(BLUEPIN,  rgb.b );
+
+//  analogWrite(sREDPIN,   255-rgb.r );
+//  analogWrite(sGREENPIN, 255-rgb.g );
+//  analogWrite(sBLUEPIN,  255-rgb.b );
+
+}
 
 
 

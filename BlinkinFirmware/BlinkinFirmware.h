@@ -76,6 +76,8 @@ char COLOR2 = 3;
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 static uint8_t startIndex = 0;
+uint8_t patternSpeed = 5;
+
 
 const CRGB colorList[] PROGMEM = {CRGB::HotPink, CRGB::DarkRed, CRGB::Red, CRGB::DarkOrange, CRGB::Yellow, CRGB::Gold, CRGB::LawnGreen, CRGB::Green, CRGB::DarkGreen, CRGB::Aqua, CRGB::Teal, CRGB::Blue, CRGB::Navy, CRGB::Fuchsia, CRGB::BlueViolet , CRGB::DimGray, CRGB::White, CRGB::Black};
 
