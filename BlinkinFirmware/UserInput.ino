@@ -181,20 +181,38 @@ void SetupCustomPalette(CRGB color1, CRGB color2)
 //  }
 
   
-  currentPalette = CRGBPalette16(
-                                 color1,  color1,  color1,  color2,
-                                 color1, color1, color1,  color2,
-                                 color1,  color1,  color1,  color2,
-                                 color1, color1, color1,  color2 );
+//  teamPalette = CRGBPalette16(
+//                                 color1,  color1,  color1,  color2, 
+//                                 color2, color1, color1,  color1,
+//                                 color1,  color1,  color1,  color2,
+//                                 color2, color1, color1,  color1 );
+
+  teamPalette = CRGBPalette16(
+                                 color2,  color1,  color1,  color1, 
+                                 color1, color1, color1,  color1,
+                                 color1,  color2,  color2,  color2,
+                                 color2, color1, color1,  color2 );
 }
 
 
 
 void testPattern()
 {
+    //SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
+    //currentBlending = NOBLEND;
+
+  
   if (addressableStrip == true) {
     // Fill --. with primary and secondary color from Pot Values
-    fill_rainbow( leds, NUM_LEDS, gHue, 7);
+    //fill_rainbow( leds, NUM_LEDS, gHue, 7);
+
+    uint8_t colorIndex = 1;
+    
+    for( int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = ColorFromPalette( teamPalette, colorIndex, BRIGHTNESS, currentBlending);
+        colorIndex += 3; 
+        //fill_rainbow( leds, NUM_LEDS, gHue, 7);
+    }
   }
   else {
     // Long blink Primary and short Blink Secondary, then crossfade, repeat?

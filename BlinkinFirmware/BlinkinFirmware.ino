@@ -2,12 +2,17 @@
 
 void setup() {
 
-  //Intialize ring buffer
 
-  addressableStrip = EEPROM.read(0);
-  COLOR1 = EEPROM.read(1);
-  COLOR2 = EEPROM.read(2);
-  //NUM_LEDS = 240;//EEPROM.read(3);
+  //check if defaults have been stored in EEPROM
+  if (EEPROM.read(0) != 0xFF) //defaults have been saved, reload variables from them
+  {
+    addressableStrip = EEPROM.read(0);
+    COLOR1 = EEPROM.read(1);
+    COLOR2 = EEPROM.read(2);
+    //NUM_LEDS = 240;//EEPROM.read(3);
+  }
+
+  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 
   for (int i = 0 ; i < patternHistory.capacity() ; i++) {
     patternHistory.unshift(0);
@@ -80,27 +85,55 @@ void setup() {
 //List of patterns to cycle through.  Each is defined as a separate function in the specified tab.
 typedef void (*SimplePatternList[])();
 SimplePatternList gPatterns = {
-  rainbow,                      //PWM_1_Standard
-  rainbowWithGlitter,           //PWM_1_Standard
+  rainbow_RGB,                  //PWM_1_Standard
+  rainbow_Party,                  //PWM_1_Standard
+  rainbow_Ocean,                  //PWM_1_Standard
+  rainbow_Lava,                  //PWM_1_Standard
+  //rainbow_Cloud,                  //PWM_1_Standard
+  rainbow_Forest,                  //PWM_1_Standard
+  //rainbowWithGlitter,           //PWM_1_Standard
   confetti,                     //PWM_1_Standard
   sinelon,                      //PWM_1_Standard
-  juggle,                       //PWM_1_Standard
-  bpm,                          //PWM_1_Standard
+  //juggle,                       //PWM_1_Standard
+  //bpm,                          //PWM_1_Standard
+  bpm_RGB,                  //PWM_1_Standard
+  bpm_Party,                  //PWM_1_Standard
+  bpm_Ocean,                  //PWM_1_Standard
+  bpm_Lava,                  //PWM_1_Standard
+  //rainbow_Cloud,                  //PWM_1_Standard
+  bpm_Forest,                  //PWM_1_Standard
   Fire2012,                     //PWM_1_Standard
-  teamSparkle,                  //PWM_4_Color1_2
+  //EndtoEndBlend_1,              //PWM_2_Color1
+  EndtoEndStaticBlend_1,        //PWM_2_Color1
+  //EndtoEndBlend_2,              //PWM_3_Color2
+  EndtoEndStaticBlend_2,        //PWM_4_Color2
+  //teamSparkle,                //PWM_4_Color1_2
+  rainbow_Team,                 //PWM_4_Color1_2
+  bpm_Team,                     //PWM_4_Color1_2
   EndtoEndBlend,                //PWM_4_Color1_2
   EndtoEndStaticBlend,          //PWM_4_Color1_2
+  testPattern,                  //PWM_5_Solid
   HotPink,                      //PWM_5_Solid
+  DarkRed,                      //PWM_5_Solid
   Red,                          //PWM_5_Solid
-  DarkOrange,                   //PWM_5_Solid
+  RedOrange,                    //PWM_5_Solid
+  Orange,                       //PWM_5_Solid  
   Gold,                         //PWM_5_Solid
   Yellow,                       //PWM_5_Solid
+  LawnGreen,                    //PWM_5_Solid
   Lime,                         //PWM_5_Solid
+  DarkGreen,                    //PWM_5_Solid
   Green,                        //PWM_5_Solid
+  BlueGreen,                    //PWM_5_Solid
   Aqua,                         //PWM_5_Solid
+  SkyBlue,                      //PWM_5_Solid
+  DarkBlue,                     //PWM_5_Solid
   Blue,                         //PWM_5_Solid
   BlueViolet,                   //PWM_5_Solid
+  Violet,                       //PWM_5_Solid
   White,                        //PWM_5_Solid
+  Gray,                         //PWM_5_Solid
+  DarkGray,                     //PWM_5_Solid
   Black                         //PWM_5_Solid
 };
 
@@ -122,8 +155,11 @@ void loop() {
     gHue++;  // slowly cycle the "base color" through the rainbow
     //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
     FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
+    
     patternSpeed = map(analogRead(COLOR2_PIN), 0, 1023, 1, 30);
     startIndex = startIndex + patternSpeed; /* motion speed */
+
+    patternAdj = map(analogRead(COLOR1_PIN), 0, 1023, 1, 30);
     
   }
 }
@@ -193,6 +229,7 @@ void ledUpdate()
 // on three analog PWM output pins to the r, g, and b values respectively.
 void showAnalogRGB( const CRGB& rgb)
 {
+
   analogWrite(REDPIN,   rgb.r );
   analogWrite(GREENPIN, rgb.g );
   analogWrite(BLUEPIN,  rgb.b );
@@ -203,6 +240,15 @@ void showAnalogRGB( const CRGB& rgb)
 
 }
 
+void displaySolid( const CRGB& rgb)
+{
+  if (addressableStrip == true) {
+    fill_solid( leds, NUM_LEDS, rgb ); 
+  }
+  else {
+     showAnalogRGB( rgb.fadeLightBy(255-map(analogRead(LENGTH_PIN), 0, 1023, 20, 255)) );
+  }
+}
 
 
 
