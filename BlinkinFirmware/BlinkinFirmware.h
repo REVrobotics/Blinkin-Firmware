@@ -61,7 +61,7 @@ CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
 
-CircularBuffer<short,5> patternHistory;  
+CircularBuffer<short,10> patternHistory;  
 bool patternStable = false;
 
 CircularBuffer<short,15> lengthHistory; 
@@ -74,6 +74,8 @@ char COLOR1 = 13;
 CircularBuffer<short,5> color2History;  
 bool color2Stable = false;
 char COLOR2 = 5;
+
+char noSignalPattern = 8;
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 static uint8_t startIndex = 0;

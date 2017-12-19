@@ -21,7 +21,7 @@ void EndtoEndStaticBlend() {
 void teamSparkle() {
   if (addressableStrip == true) {
     fill_solid( leds, NUM_LEDS, colorList[COLOR1] );
-    addGlitter(500, colorList[COLOR2]);
+    addGlitter(255, colorList[COLOR2]);
   }
   else {
     showAnalogRGB( colorList[COLOR1] );

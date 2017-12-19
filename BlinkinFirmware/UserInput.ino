@@ -127,30 +127,6 @@ void buttonHandler()
   }
 }
 
-void toggleStripSelect()
-{
-    if (addressableStrip) 
-    {
-      Black();
-      FastLED.show();
-      digitalWrite(IND_PIN,HIGH);
-      addressableStrip = false;
-      //delay(20);
-      //EEPROM write takes 3.3ms
-      if(writeEEPROM)
-          EEPROM.write(0, addressableStrip);
-    }
-    else
-    {
-      Black();
-      digitalWrite(IND_PIN,LOW);
-      addressableStrip = true;
-      //EEPROM write takes 3.3ms
-      if(writeEEPROM)
-        EEPROM.write(0, addressableStrip);
-    }
-  
-}
 
 
 //void SetupCustomPalette(uint8_t HUE_color1, uint8_t HUE_color2)
