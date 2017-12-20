@@ -1,5 +1,5 @@
 //#define FASTLED_INTERRUPT_RETRY_COUNT 3
-#define FASTLED_ALLOW_INTERRUPTS 0
+//#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 #include <EEPROM.h>
@@ -7,7 +7,7 @@
 #define CIRCULAR_BUFFER_XS
 #include <CircularBuffer.h>
 
-//FASTLED_USING_NAMESPACE
+FASTLED_USING_NAMESPACE
 
 #define writeEEPROM false
 
@@ -61,9 +61,9 @@ CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
 
-CircularBuffer<short,10> patternHistory;
+CircularBuffer<short,5> patternHistory;
 short currentPattern = 0;  
-bool patternStable = false;
+bool patternStable = true;
 
 CircularBuffer<short,15> lengthHistory; 
 bool lengthStable = false;

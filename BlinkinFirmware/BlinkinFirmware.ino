@@ -13,7 +13,7 @@ void setup() {
     noSignalPattern = EEPROM.read(4);
   }
 
-  //SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
+  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 
   for (int i = 0 ; i < patternHistory.capacity() ; i++) {
     patternHistory.unshift(0);
@@ -22,15 +22,19 @@ void setup() {
   //set timer1 interrupt
   TCCR1A = 0;// set entire TCCR1A register to 0
   TCCR1B = 0;// same for TCCR1B
-  TCNT1  = 1;//initialize counter value to 1, 0 triggers interrupt
+  TCNT1  = 0;//initialize counter value to 1, 0 triggers interrupt
   // set compare match register
-  OCR1A = 65000; // (must be <65536)
+  OCR1A = 65000; // (must be <65536) 
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
   // Set CS11 for 8 prescaler
   TCCR1B |= (1 << CS11);
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
+
+  //16,000,000hz/8 = 2,000,000
+  //0.0000005 second = counter tick
+  //1.0 ms pulse = 2000 TCNT1
 
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   //FastLED.setMaxPowerInVoltsAndMilliamps(5, 4500);
@@ -112,7 +116,6 @@ FunctionList gPatterns[] = {
   rainbow_Cloud,                  //PWM_1_Standard
   bpm_Forest,                  //PWM_1_Standard
   Fire2012,                     //PWM_1_Standard
-  EndtoEndBlend_1,              //PWM_2_Color1
   EndtoEndStaticBlend_1,        //PWM_2_Color1
   EndtoEndBlend_2,              //PWM_3_Color2
   EndtoEndStaticBlend_2,        //PWM_4_Color2
@@ -195,7 +198,7 @@ FunctionList gPatterns[] = {
   White,                        //PWM_5_Solid
   Gray,                         //PWM_5_Solid
   DarkGray,                     //PWM_5_Solid
-  Black,                        //PWM_5_Solid
+  Black                        //PWM_5_Solid
 };
 
 //FunctionList gPatterns[] = {
@@ -231,10 +234,10 @@ void loop() {
     //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
     FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
     
-    patternSpeed = map(analogRead(COLOR2_PIN), 0, 1023, 1, 30);
+    patternSpeed = constrain(map(analogRead(COLOR2_PIN), 0, 1024, 1, 30), 1, 30);
     startIndex = startIndex + patternSpeed; /* motion speed */
   
-    patternAdj = map(analogRead(COLOR1_PIN), 0, 1023, 1, 30);
+    patternAdj = constrain(map(analogRead(COLOR1_PIN), 0, 1024, 1, 30), 1, 30);
   }
 
 }
@@ -249,21 +252,14 @@ ISR(TIMER1_COMPA_vect) {
   attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
 
-void ISRreset() { //after LEDs have updated and the input PWM line is low set-up for pulse measurement
-
-  TCNT1  = 1;//initialize counter value to 1, reset heatbeat, do not set to 0 as this triggers ISR
-  
-  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
-}
-
 void ISRrising() {
 
   detachInterrupt(2);
-  
-  TCNT1  = 1;//initialize counter value to 1, reset heatbeat, do not set to 0 as this triggers ISR
-  prev_time = TCNT1;
   inPulse = true;
   updatedLEDs = false;
+  
+  TCNT1  = 0;//initialize counter value to 1, reset heatbeat, do not set to 0 as this triggers ISR
+  prev_time = TCNT1;
 
   attachInterrupt(digitalPinToInterrupt(2), ISRfalling, FALLING);
 }
@@ -274,17 +270,30 @@ void ISRfalling() {
   
   pwm_value = TCNT1 - prev_time;
 
-  if ((pwm_value <= 4000) && (pwm_value >= 2000)) //4400 ~=2.2mS
+  //TCNT1*0.0000005 = pulse width (seconds)
+  if ((pwm_value <= 4010) && (pwm_value >= 1990)) //4400 ~=2.2mS
   {
-    patternHistory.unshift(map(pwm_value, 2000, 4000, 0, (ARRAY_SIZE(gPatterns)))); //4400 was 2200ms and 1600 was 800ms
+    //patternHistory.unshift(constrain(map(pwm_value, 2000, 4001, 0, (ARRAY_SIZE(gPatterns))),0,(ARRAY_SIZE(gPatterns)) )); //4400 was 2200ms and 1600 was 800ms
+    patternHistory.unshift(constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4400 was 2200ms and 1600 was 800ms
+
   }
-//  else if ((pwm_value > 4000) && (pwm_value <= 4400))
-//  {
-//    gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
-//  }
 //  else
 //  {
-//      //patternHistory.unshift(noSignalPattern);
+//    patternHistory.unshift(patternHistory[0]);
+//  }
+  else if ((pwm_value > 4000) && (pwm_value <= 4400))
+  {
+    patternHistory.unshift(noSignalPattern);
+    //gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
+  }
+  else if ((pwm_value < 2000) && (pwm_value >= 1200))
+  {
+    patternHistory.unshift(noSignalPattern);
+    //gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
+  }
+//  else
+//  {
+//      patternHistory.unshift(noSignalPattern);
 //  }
 
   prev_time = 0;
@@ -302,10 +311,11 @@ void ledUpdate()
       patternStable = false; //if any of the elements of the patternHistory buffer don't match, the pattern is not stable
   }
 
+
   if (patternStable) //if the pattern is stable, output and update the current pattern value
   {
-    gPatterns[patternHistory[0]]();
     currentPattern = patternHistory[0];
+    gPatterns[currentPattern]();
   }
   else //if pattern is not stable, use the previous stable pattern 
   { 
@@ -320,15 +330,11 @@ void ledUpdate()
     FastLED.show();
   }
 
+  updatedLEDs = true; //set status flag to show that LEDs have been updates to latest requested value
   
-  //if(digitalRead(2) == LOW){
-    attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
-//  else  {
-    //attachInterrupt(digitalPinToInterrupt(2), ISRreset, FALLING);
-  
-  updatedLEDs = true;
-
-
+  //delay(1);
+  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
+ 
 }
 
 
