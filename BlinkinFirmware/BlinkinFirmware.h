@@ -61,7 +61,8 @@ CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
 
-CircularBuffer<short,10> patternHistory;  
+CircularBuffer<short,10> patternHistory;
+short currentPattern = 0;  
 bool patternStable = false;
 
 CircularBuffer<short,15> lengthHistory; 
