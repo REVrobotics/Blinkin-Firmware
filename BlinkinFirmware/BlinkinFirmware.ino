@@ -63,7 +63,7 @@ void setup() {
 
   digitalWrite(sREDPIN, HIGH);
   digitalWrite(sGREENPIN, HIGH);
-  digitalWrite(sBLUEPIN, HIGH);
+  digitalWrite(sBLUEPIN, LOW);
 
 
   pinMode(MODE_PIN, INPUT);
@@ -84,18 +84,35 @@ void setup() {
 
   // when pin D2(Servo input) goes high, call the rising function
   attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
-
 }
 
 //List of patterns.  Each is defined as a separate function in the specified tab.
 typedef void (*FunctionList)();
+typedef void (*CommandList)(char);
 
 //List of commands.  Each is defined as a separate function in the specified tab.
 //typedef void (*SimpleCommandList[])();
-FunctionList gCommands[] = {
+CommandList gCommands[] = {
     cmdNoStrip,                   //PWM_0_Command
-    cmd5VStrip,                   //PWM_0_Command
+    cmdNoStrip,                   //PWM_0_Command
+    cmdNoStrip,                  //PWM_0_Command
+    cmd5VStrip,                  //PWM_0_Command
     cmd12VStrip,                  //PWM_0_Command
+    cmdIncreaseBrightness,                  //PWM_0_Command
+    cmdDecreaseBrightness,                  //PWM_0_Command
+    cmdChangeColor1,                  //PWM_0_Command
+    cmdChangeColor2,                  //PWM_0_Command
+    cmdChangeDefaultPattern,                  //PWM_0_Command
+    cmdChangeDefaultPattern,                  //PWM_0_Command
+    cmdChangeDefaultPattern,                  //PWM_0_Command
+    cmdChangeColor1,                  //PWM_0_Command
+    cmdChangeColor1,                  //PWM_0_Command
+    cmdChangeColor1,                  //PWM_0_Command
+    cmdChangeColor1,                  //PWM_0_Command
+    cmdChangeColor2,                  //PWM_0_Command
+    cmdChangeColor2,                  //PWM_0_Command
+    cmdChangeColor2,                  //PWM_0_Command
+    cmdChangeColor2,                  //PWM_0_Command
 };
 
 FunctionList gPatterns[] = {
@@ -143,13 +160,13 @@ FunctionList gPatterns[] = {
  Red,                          //PWM_5_Solid
  Blue,                         //PWM_5_Solid
  Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
+ Blue,                          //PWM_5_Solid
  Blue,                         //PWM_5_Solid
  Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
+ Blue ,                          //PWM_5_Solid
  Blue,                         //PWM_5_Solid
  Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
+ Blue,                          //PWM_5_Solid
  Blue,                         //PWM_5_Solid
  Green,                        //PWM_5_Solid
  Red,                          //PWM_5_Solid
@@ -201,18 +218,6 @@ FunctionList gPatterns[] = {
   Black                        //PWM_5_Solid
 };
 
-//FunctionList gPatterns[] = {
-//  HotPink,                      //PWM_5_Solid
-//  rainbow_RGB,                          //PWM_5_Solid
-//  rainbow_Party,                    //PWM_5_Solid
-//  Yellow,                       //PWM_5_Solid
-//  Lime,                         //PWM_5_Solid
-//  Aqua,                         //PWM_5_Solid
-//  Blue,                         //PWM_5_Solid
-//  Violet,                       //PWM_5_Solid
-//  White,                        //PWM_5_Solid
-//  Black                         //PWM_5_Solid
-//};
 
 void loop() {
 
@@ -229,22 +234,29 @@ void loop() {
   }
 
   // do some periodic updates
-  EVERY_N_MILLISECONDS( 50 ) {
-    gHue++;  // slowly cycle the "base color" through the rainbow
-    //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
-    FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
-    
+  EVERY_N_MILLISECONDS( 100 ) {
+
+    // slowly cycle the "base color" through the rainbow, used for some patterns
+    gHue++;  
+
+    //Pot 1 - User set pattern density, not used for all patterns 
+    patternAdj = constrain(map(analogRead(COLOR1_PIN), 0, 1024, 1, 30), 1, 30);
+
+    //Pot 2 - User set pattern movement speed, not used for all patterns 
     patternSpeed = constrain(map(analogRead(COLOR2_PIN), 0, 1024, 1, 30), 1, 30);
     startIndex = startIndex + patternSpeed; /* motion speed */
-  
-    patternAdj = constrain(map(analogRead(COLOR1_PIN), 0, 1024, 1, 30), 1, 30);
+
+    //Pot 3 - user set strip brightness
+    FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
+
   }
 
 }
 
-ISR(TIMER1_COMPA_vect) {
+//
+ISR(TIMER1_COMPA_vect) { 
 
-  patternHistory.unshift(3);//noSignalPattern);
+  patternHistory.unshift(noSignalPattern); 
 
   updatedLEDs = false;
   inPulse = false;
@@ -273,28 +285,35 @@ void ISRfalling() {
   //TCNT1*0.0000005 = pulse width (seconds)
   if ((pwm_value <= 4010) && (pwm_value >= 1990)) //4400 ~=2.2mS
   {
-    //patternHistory.unshift(constrain(map(pwm_value, 2000, 4001, 0, (ARRAY_SIZE(gPatterns))),0,(ARRAY_SIZE(gPatterns)) )); //4400 was 2200ms and 1600 was 800ms
-    patternHistory.unshift(constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4400 was 2200ms and 1600 was 800ms
+    if (programSeq == false)
+    {
+      //patternHistory.unshift(constrain(map(pwm_value, 2000, 4001, 0, (ARRAY_SIZE(gPatterns))),0,(ARRAY_SIZE(gPatterns)) )); //4400 was 2200ms and 1600 was 800ms
+      patternHistory.unshift(constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4400 was 2200ms and 1600 was 800ms
+    }
+    else
+    {
+      gCommands[currCommand](constrain(map(pwm_value, 2000, 4000, 0, 100),0,99));
+      //gCommands[currCommand](char(88));
+
+    }
 
   }
-//  else
-//  {
-//    patternHistory.unshift(patternHistory[0]);
-//  }
-  else if ((pwm_value > 4000) && (pwm_value <= 4400))
+  else if ((pwm_value > 4000) && (pwm_value <= 4400)) //2.00 ms to 2.20 ms
   {
-    patternHistory.unshift(noSignalPattern);
-    //gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
+    programSeq = true;
+    
+    digitalWrite(sREDPIN, LOW);
+    digitalWrite(sGREENPIN, HIGH);
+    digitalWrite(sBLUEPIN, HIGH);
+    
+    currCommand = constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19);
+    //gCommands[currCommand](0);
   }
   else if ((pwm_value < 2000) && (pwm_value >= 1200))
   {
-    patternHistory.unshift(noSignalPattern);
+    //patternHistory.unshift(noSignalPattern);
     //gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
   }
-//  else
-//  {
-//      patternHistory.unshift(noSignalPattern);
-//  }
 
   prev_time = 0;
   inPulse = false;
@@ -373,8 +392,8 @@ void toggleStripSelect()
       addressableStrip = false;
       //delay(20);
       //EEPROM write takes 3.3ms
-      if(writeEEPROM)
-          EEPROM.write(0, addressableStrip);
+//      if(writeEEPROM)
+//          EEPROM.write(0, addressableStrip);
     }
     else
     {
@@ -382,8 +401,8 @@ void toggleStripSelect()
       digitalWrite(IND_PIN,LOW);
       addressableStrip = true;
       //EEPROM write takes 3.3ms
-      if(writeEEPROM)
-        EEPROM.write(0, addressableStrip);
+//      if(writeEEPROM)
+//        EEPROM.write(0, addressableStrip);
     }
   
 }

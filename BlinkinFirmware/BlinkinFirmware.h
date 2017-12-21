@@ -57,6 +57,9 @@ unsigned int ssButtonHoldCount = 0;
 
 boolean addressableStrip = true;
 
+boolean programSeq = false;
+char currCommand = 0;
+
 CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
