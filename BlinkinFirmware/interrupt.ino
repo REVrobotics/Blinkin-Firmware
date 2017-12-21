@@ -24,7 +24,10 @@ void timerConfiguration(){
 
 ISR(TIMER1_COMPA_vect) { 
 
+  
   patternHistory.unshift(noSignalPattern); 
+
+  noSignal = true;
 
   updatedLEDs = false;
   inPulse = false;
@@ -36,6 +39,7 @@ void ISRrising() {
 
   detachInterrupt(2);
   inPulse = true;
+  noSignal = false;
   updatedLEDs = false;
   
   TCNT1  = 1;//initialize counter value to 1, reset heatbeat, do not set to 0 as this triggers ISR
@@ -61,7 +65,6 @@ void ISRfalling() {
     else
     {
       gCommands[currCommand](constrain(map(pwm_value, 2000, 4000, 0, 100),0,99));
-      //gCommands[currCommand](char(88));
       
       commandSeq = false;
       setStatusRun();
@@ -69,15 +72,24 @@ void ISRfalling() {
   }
   else if ((pwm_value > 4000) && (pwm_value <= 4400)) //2.00 ms to 2.20 ms
   {
-    if (inSetup == false)
+    if ((inSetup == false))// && (commandSeq == false))
     {
-      commandSeq = true;   
+//      if (currCommand != constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19))
+//      {
+        commandSeq = true;   
+          
+        // Indicate Command mode signal detected    
+        setStatusCommand();
         
-      // Indicate Command mode signal detected    
-      setStatusCommand();
-      
-      currCommand = constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19);
+        currCommand = constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19);
+//      }
     }
+//    else if ((inSetup == false) && (commandSeq == true))
+//    {
+//      commandSeq = false;   
+//      
+//      setStatusRun();
+//    }
   }
   else if ((pwm_value < 2000) && (pwm_value >= 1200))
   {

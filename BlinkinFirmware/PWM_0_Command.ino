@@ -11,9 +11,14 @@ void cmdIncreaseBrightness(char var)  {}
 
 void cmdDecreaseBrightness(char var)  {}
 
-void cmdChangeColor1(char var)        {  COLOR1 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); }
+void cmdChangeColor1(char var)        {  
+  COLOR1 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); 
+  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);}
 
-void cmdChangeColor2(char var)        {  COLOR2 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); }
+void cmdChangeColor2(char var)        {  
+  COLOR2 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); 
+  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
+}
 
 void cmdChangeDefaultPattern(char var){  noSignalPattern = var; }
 

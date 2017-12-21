@@ -17,14 +17,14 @@ FASTLED_USING_NAMESPACE
 #define SS_PIN      A2 //LED Strip type select button
 
 //Analog RGB LED Strip Pins
-#define REDPIN   5
-#define GREENPIN 6
-#define BLUEPIN  3
+#define REDPIN   5  //OC0B
+#define GREENPIN 6  //OC0A
+#define BLUEPIN  3  //OC2B
 
 ////Analog Status RGB LED Pins
-#define sREDPIN   9
-#define sGREENPIN 10
-#define sBLUEPIN  11
+#define sREDPIN   9   //OC1A
+#define sGREENPIN 10  //OC1B
+#define sBLUEPIN  11  //OC2A
 
 //Analog Inputs for Color Selections
 #define COLOR1_PIN      A6 
@@ -54,6 +54,7 @@ volatile uint16_t prev_time = 0;
 volatile boolean inPulse = false;
 volatile boolean updatedLEDs = true;
 volatile boolean inSetup = false;
+boolean noSignal = false;
 
 unsigned long modeButtonHoldCount = 0;
 unsigned int ssButtonHoldCount = 0;

@@ -3,14 +3,11 @@ void setupMode()
   inSetup = !inSetup;
 
   if (inSetup){
-    //??
-    digitalWrite(sREDPIN, LOW);
-    digitalWrite(sGREENPIN, HIGH);
+      setStatusSetup();
   }
   //Exit set-up
   else{
-    digitalWrite(sREDPIN, HIGH);
-    digitalWrite(sGREENPIN, LOW);
+      setStatusRun();
 
     //write variable to EEPROM
     if(writeEEPROM)
@@ -29,29 +26,28 @@ void readUserInputs()
 {
   //read Pot value and translate to colors/strip Length
 
-  lengthHistory.unshift(map(analogRead(LENGTH_PIN), 0, 1023, 1, 288));
+//  lengthHistory.unshift(map(analogRead(LENGTH_PIN), 0, 1024, 1, 240));
+//
+//    //check that the pattern value has been stable 
+//    for (int i = 0 ; i< lengthHistory.capacity() ; i++){
+//      if (lengthHistory[0] != lengthHistory[i])
+//        lengthStable = false;
+//    }
+//    
+//    if (lengthStable){
+//      if (NUM_LEDS > lengthHistory[0]){
+//         //need loop to only update pixels to black that are > then new length
+//         Black();
+//         FastLED.show();
+//      }
+//      //NUM_LEDS = lengthHistory[0];
+//      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);           
+//    }     
+//
+//    lengthStable = true;
 
-    //check that the pattern value has been stable 
-    for (int i = 0 ; i< lengthHistory.capacity() ; i++){
-      if (lengthHistory[0] != lengthHistory[i])
-        lengthStable = false;
-    }
-    
-    if (lengthStable){
-      if (NUM_LEDS > lengthHistory[0]){
-         //need loop to only update pixels to black that are > then new length
-         Black();
-         FastLED.show();
-      }
-      //NUM_LEDS = lengthHistory[0];
-      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);           
-    }   
 
-    lengthStable = true;
-
-
-    color1History.unshift(map(analogRead(COLOR1_PIN), 0, 1023, 0, (ARRAY_SIZE(colorList))));
-    //color1History.unshift(map(analogRead(COLOR1_PIN), 0, 1023, 0, (ARRAY_SIZE(hueList))-1));
+    color1History.unshift(map(analogRead(COLOR1_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
     
     //check that the pattern value has been stable 
     for (int i = 0 ; i< color1History.capacity() ; i++){
@@ -65,9 +61,7 @@ void readUserInputs()
 
     color1Stable = true;
 
-
-    color2History.unshift(map(analogRead(COLOR2_PIN), 0, 1023, 0, (ARRAY_SIZE(colorList))));
-    //color2History.unshift(map(analogRead(COLOR2_PIN), 0, 1023, 0, (ARRAY_SIZE(hueList))-1));
+    color2History.unshift(map(analogRead(COLOR2_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
 
     //check that the pattern value has been stable 
     for (int i = 0 ; i< color2History.capacity() ; i++){
@@ -132,37 +126,6 @@ void buttonHandler()
 //void SetupCustomPalette(uint8_t HUE_color1, uint8_t HUE_color2)
 void SetupCustomPalette(CRGB color1, CRGB color2)
 {
-
-//  CRGB color1;
-//  CRGB color2;
-//    
-//  if (HUE_color1 == 255){
-//    color1  = CRGB::Black;
-//  }
-//  else if (HUE_color1 == 254){
-//    color1  = CRGB::Grey;
-//  }
-//  else{
-//    color1  = CHSV( HUE_color1, 255, 255);  
-//  }
-//
-//  if (HUE_color2 == 255){
-//    color2 = CRGB::Black;
-//  }
-//  else if (HUE_color2 == 254){
-//    color2 = CRGB::Grey;
-//  }
-//  else{
-//    color2 = CHSV( HUE_color2, 255, 255);
-//  }
-
-  
-//  teamPalette = CRGBPalette16(
-//                                 color1,  color1,  color1,  color2, 
-//                                 color2, color1, color1,  color1,
-//                                 color1,  color1,  color1,  color2,
-//                                 color2, color1, color1,  color1 );
-
   teamPalette = CRGBPalette16(
                                  color2,  color1,  color1,  color1, 
                                  color1, color1, color1,  color1,
@@ -170,17 +133,12 @@ void SetupCustomPalette(CRGB color1, CRGB color2)
                                  color2, color1, color1,  color2 );
 }
 
-
-
 void testPattern()
 {
     //SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
     //currentBlending = NOBLEND;
-
   
   if (addressableStrip == true) {
-    // Fill --. with primary and secondary color from Pot Values
-    //fill_rainbow( leds, NUM_LEDS, gHue, 7);
 
     uint8_t colorIndex = 1;
     

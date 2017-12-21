@@ -238,10 +238,15 @@ void loop() {
     patternSpeed = constrain(map(analogRead(COLOR2_PIN), 0, 1024, 1, 30), 1, 30);
     startIndex = startIndex + patternSpeed; /* motion speed */
 
+    if ((noSignal == true))
+      setStatusNoSignal(); 
+    else
+      setStatusMode(); 
+
     //Pot 3 - user set strip brightness
     if (cmdBrightness == false){
-      FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));}
-
+      FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
+    }
   }
 
 }
@@ -343,21 +348,67 @@ void setStripSelect(bool newStripState)
 }
 
 void setStatusCommand(){
+  // "Purple"
   digitalWrite(sREDPIN, LOW);
   digitalWrite(sGREENPIN, HIGH);
   digitalWrite(sBLUEPIN, LOW);
 }
 
-void setStatusSetup(){
+void setStatusSetup(){ 
+  // "Yellow"
   digitalWrite(sREDPIN, LOW);
   digitalWrite(sGREENPIN, LOW);
   digitalWrite(sBLUEPIN, HIGH);
 }
 
 void setStatusRun(){
+  // "Blue"
   digitalWrite(sREDPIN, HIGH);
   digitalWrite(sGREENPIN, HIGH);
   digitalWrite(sBLUEPIN, LOW);
 }
+
+void setStatusMode(){
+
+  if(inSetup == false){ 
+    setStatusRun();}   // "Blue"
+  else { 
+    setStatusSetup();}  // "Yellow" 
+}
+
+
+void setStatusNoSignal(){
+  // "Blink Output"
+
+  if(inSetup == false)
+  { 
+    digitalWrite(sGREENPIN, HIGH);
+    digitalWrite(sREDPIN, HIGH);  
+  
+    if (digitalRead(sBLUEPIN) == HIGH){
+      digitalWrite(sBLUEPIN, LOW);}
+    else{
+      digitalWrite(sBLUEPIN, HIGH); }
+  }
+  else
+  {
+    digitalWrite(sBLUEPIN, HIGH);
+
+    if (digitalRead(sGREENPIN) == HIGH){
+      digitalWrite(sGREENPIN, LOW);
+      digitalWrite(sREDPIN, LOW);}
+    else{
+      digitalWrite(sGREENPIN, HIGH); 
+      digitalWrite(sREDPIN, HIGH);}
+  }
+}
+
+void setStatusError(){
+  // "Blue"
+  digitalWrite(sREDPIN, LOW);
+  digitalWrite(sGREENPIN, HIGH);
+  digitalWrite(sBLUEPIN, HIGH);
+}
+
 
 

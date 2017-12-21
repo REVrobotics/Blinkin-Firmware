@@ -15,7 +15,6 @@ void EndtoEndBlend() {
 void EndtoEndStaticBlend() {
   fill_gradient_RGB(leds, 0, colorList[COLOR1], NUM_LEDS/2, colorList[COLOR2]);
   fill_gradient_RGB(leds, NUM_LEDS/2+1, colorList[COLOR2], NUM_LEDS-1, colorList[COLOR1]);
-
 }
 
 void teamSparkle() {
