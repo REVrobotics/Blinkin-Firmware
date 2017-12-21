@@ -17,7 +17,7 @@ void rainbow(CRGBPalette16 palette)
     
     // FastLED's built-in rainbow generator
     for( int i = 0; i < NUM_LEDS; i++) {
-        leds[i] = ColorFromPalette( palette, colorIndex, BRIGHTNESS, LINEARBLEND);
+        leds[i] = ColorFromPalette( palette, colorIndex, BRIGHTNESS, currentBlending);
         colorIndex += patternLength; 
         //fill_rainbow( leds, NUM_LEDS, gHue, 7);
     }
@@ -25,9 +25,7 @@ void rainbow(CRGBPalette16 palette)
   else {
     //gHue = gHue + 1;
     gHue = gHue + (patternSpeed/3);
-    // Use FastLED automatic HSV->RGB conversion
-    //showAnalogRGB( CHSV( gHue, 255, 255) );
-    //showAnalogRGB( CHSV( gHue, 255, map(analogRead(LENGTH_PIN), 0, 1023, 50, 255)) );
+
     displaySolid( ColorFromPalette(palette, gHue ) );
     
     delay(5);

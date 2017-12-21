@@ -45,6 +45,9 @@ CRGB leds[NUM_LEDS];
 CRGB endclr;
 CRGB midclr;
 
+boolean cmdBrightness = false;
+boolean cmdDisableOutput = false;
+
 volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
 
@@ -57,7 +60,7 @@ unsigned int ssButtonHoldCount = 0;
 
 boolean addressableStrip = true;
 
-boolean programSeq = false;
+boolean commandSeq = false;
 char currCommand = 0;
 
 CRGBPalette16 currentPalette;

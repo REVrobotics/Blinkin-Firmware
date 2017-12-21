@@ -1,78 +1,38 @@
-void cmdNoStrip(char var)    {  displaySolid(BLACK);  }
+void cmdNoStrip(char var)             {  
+  displaySolid(BLACK);  
+  cmdDisableOutput = true;
+}
 
-void cmd5VStrip(char var)    {  
-    setStripSelect(true);  
-  }
+void cmd5VStrip(char var)             {  setStripSelect(true); }
 
-void cmd12VStrip(char var)   {  
-    setStripSelect(false);  
-  }
+void cmd12VStrip(char var)            {  setStripSelect(false); }
 
-void cmdIncreaseBrightness(char var){
-    
-    if (var == 0)
-      programSeq = true;
-    else {
-      
-      programSeq = false;
-    }
-  }
+void cmdIncreaseBrightness(char var)  {}
 
-void cmdDecreaseBrightness(char var){
-    if (var == 0)
-      programSeq = true;
-    else {
-      
-      programSeq = false;
-    }
+void cmdDecreaseBrightness(char var)  {}
+
+void cmdChangeColor1(char var)        {  COLOR1 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); }
+
+void cmdChangeColor2(char var)        {  COLOR2 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); }
+
+void cmdChangeDefaultPattern(char var){  noSignalPattern = var; }
+
+void cmdSaveSettings(char var){
   
+  //EEPROM write takes 3.3ms
+  //if(writeEEPROM)
+  {
+      //EEPROM.write(0, addressableStrip);
+      //EEPROM.write(1, COLOR1);
+      //EEPROM.write(2, COLOR2);
+      //EEPROM.write(3, NUM_LEDS);
+      //EEPROM.write(4, noSignalPattern);
   }
 
-void cmdChangeColor1(char var){
-  
-      programSeq = false;
-      
-      COLOR1 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21);
+}
 
-      digitalWrite(sREDPIN, HIGH);
-      digitalWrite(sGREENPIN, HIGH);
-      digitalWrite(sBLUEPIN, LOW);
-  }
+void cmdSetNoBlend(char var)          {  currentBlending = NOBLEND; }
 
-void cmdChangeColor2(char var){
+void cmdSetLinearBlend(char var)      {  currentBlending = LINEARBLEND; }
 
-      programSeq = false;
-      
-      COLOR2 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21);
-
-      digitalWrite(sREDPIN, HIGH);
-      digitalWrite(sGREENPIN, HIGH);
-      digitalWrite(sBLUEPIN, LOW);
-  
-  }
-
-void cmdChangeDefaultPattern(char var){
-    if (var == 0)
-      programSeq = true;
-    else {
-      noSignalPattern = var;
-      programSeq = false;
-    }
-  
-  }
-
-  void cmdSaveSettings(char var){
-    programSeq = false;
-    
-    //EEPROM write takes 3.3ms
-    //if(writeEEPROM)
-    {
-        //EEPROM.write(0, addressableStrip);
-        //EEPROM.write(1, COLOR1);
-        //EEPROM.write(2, COLOR2);
-        //EEPROM.write(3, NUM_LEDS);
-        //EEPROM.write(4, noSignalPattern);
-    }
-
-  }
 
