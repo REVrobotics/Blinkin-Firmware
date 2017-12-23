@@ -2,7 +2,7 @@
 
 void setup() {
 
-  initEEPROM();
+  //initEEPROM();
   
   // Set-up the custom palette using the team colors COLOR1 and COLOR2
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
@@ -12,13 +12,12 @@ void setup() {
     patternHistory.unshift(0);
   }
 
-  //call timer set-up routine from inteurrupt tab
-  timerConfiguration();
+
 
   // FastLED declaration
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   // Enable at a safe starting brightness
-  FastLED.setBrightness( BRIGHTNESS );
+  FastLED.setBrightness( 128 );
 
   // Setup a default palette and blend style
   currentPalette = RainbowColors_p;
@@ -57,6 +56,9 @@ void setup() {
 
   //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
 
+  addressableStrip = EEPROM.read(0);
+  noSignalPatternDisplay = EEPROM.read(4);
+
   if (addressableStrip == true) {
     digitalWrite(IND_PIN, LOW);
   }
@@ -65,6 +67,9 @@ void setup() {
     fill_solid( leds, NUM_LEDS, CRGB::Black );
     FastLED.show();
   }
+
+  //call timer set-up routine from interrupt tab
+  timerConfiguration();
 
   // when pin D2(Servo input) goes high, call the rising function
   attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);

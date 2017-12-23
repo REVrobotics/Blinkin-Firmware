@@ -9,7 +9,7 @@
 
 FASTLED_USING_NAMESPACE
 
-#define writeEEPROM false
+#define writeEEPROM true
 
 #define LED_PIN     7 //Data line for addressable strip
 #define IND_PIN     4 //Digital pin to indicate Analog vs Addressable LEDs Strip Select
