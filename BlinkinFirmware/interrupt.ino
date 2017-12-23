@@ -25,7 +25,7 @@ void timerConfiguration(){
 ISR(TIMER1_COMPA_vect) { 
 
   
-  patternHistory.unshift(noSignalPattern); 
+  patternHistory.unshift(noSignalPatternDisplay); 
 
   noSignal = true;
 
@@ -93,7 +93,7 @@ void ISRfalling() {
   }
   else if ((pwm_value < 2000) && (pwm_value >= 1200))
   {
-    //patternHistory.unshift(noSignalPattern);
+    //patternHistory.unshift(noSignalPatternDisplay);
     //gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
   }
 

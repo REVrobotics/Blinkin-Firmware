@@ -39,6 +39,9 @@ FASTLED_USING_NAMESPACE
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
+#define NOSIGNALPATTERN 8
+#define TESTPATTERN 25
+
 //unsigned int NUM_LEDS = 240;
 
 CRGB leds[NUM_LEDS];
@@ -58,6 +61,9 @@ boolean noSignal = false;
 
 unsigned long modeButtonHoldCount = 0;
 unsigned int ssButtonHoldCount = 0;
+unsigned int programButtonHoldCount = 0;
+boolean setupTransistion = false;
+boolean stripTransistion = false;
 
 boolean addressableStrip = true;
 
@@ -78,17 +84,22 @@ bool lengthStable = false;
 CircularBuffer<short,5> color1History; 
 bool color1Stable = false;
 char COLOR1 = 13;
+char COLOR1temp = COLOR1;
 
 CircularBuffer<short,5> color2History;  
 bool color2Stable = false;
 char COLOR2 = 5;
+char COLOR2temp = COLOR2;
 
-char noSignalPattern = 8;
+uint8_t noSignalPatternDisplay = NOSIGNALPATTERN;
+uint8_t testPatternDisplay = TESTPATTERN;
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 static uint8_t startIndex = 0;
 uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
+
+
 
 #define HOT_PINK 0xFF00AA
 #define DARK_RED 0x990000

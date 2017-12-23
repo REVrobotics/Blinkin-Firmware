@@ -20,7 +20,7 @@ void cmdChangeColor2(char var)        {
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 }
 
-void cmdChangeDefaultPattern(char var){  noSignalPattern = var; }
+void cmdChangeDefaultPattern(char var){  noSignalPatternDisplay = var; }
 
 void cmdSaveSettings(char var){
   
@@ -31,7 +31,7 @@ void cmdSaveSettings(char var){
       //EEPROM.write(1, COLOR1);
       //EEPROM.write(2, COLOR2);
       //EEPROM.write(3, NUM_LEDS);
-      //EEPROM.write(4, noSignalPattern);
+      //EEPROM.write(4, noSignalPatternDisplay);
   }
 
 }

@@ -2,16 +2,8 @@
 
 void setup() {
 
-  // Check if defaults have been stored in EEPROM
-  if (EEPROM.read(0) != 0xFF) //defaults have been saved, reload variables from them
-  {
-    addressableStrip = EEPROM.read(0);
-    COLOR1 = EEPROM.read(1);
-    COLOR2 = EEPROM.read(2);
-    //NUM_LEDS = 240;//EEPROM.read(3);
-    noSignalPattern = EEPROM.read(4);
-  }
-
+  initEEPROM();
+  
   // Set-up the custom palette using the team colors COLOR1 and COLOR2
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 
@@ -28,11 +20,11 @@ void setup() {
   // Enable at a safe starting brightness
   FastLED.setBrightness( BRIGHTNESS );
 
-  // Setup a default palette and blend style 
+  // Setup a default palette and blend style
   currentPalette = RainbowColors_p;
   currentBlending = LINEARBLEND; //or NOBLEND;
 
-  // Dual LEDs for indicating which type of LED strip is selected 
+  // Dual LEDs for indicating which type of LED strip is selected
   //LOW for 5V, HIGH for 12V
   pinMode(IND_PIN, OUTPUT);
 
@@ -85,26 +77,26 @@ typedef void (*CommandList)(char);
 //List of commands.  Each is defined as a separate function in the specified tab.
 //typedef void (*SimpleCommandList[])();
 CommandList gCommands[] = {
-    cmdNoStrip,                   //PWM_0_Command
-    cmdNoStrip,                   //PWM_0_Command
-    cmdNoStrip,                  //PWM_0_Command
-    cmd5VStrip,                  //PWM_0_Command
-    cmd12VStrip,                  //PWM_0_Command
-    cmdIncreaseBrightness,                  //PWM_0_Command
-    cmdDecreaseBrightness,                  //PWM_0_Command
-    cmdChangeColor1,                  //PWM_0_Command
-    cmdChangeColor2,                  //PWM_0_Command
-    cmdChangeDefaultPattern,                  //PWM_0_Command
-    cmdSetLinearBlend,                  //PWM_0_Command
-    cmdSetNoBlend,                  //PWM_0_Command
-    cmdChangeColor1,                  //PWM_0_Command
-    cmdChangeColor1,                  //PWM_0_Command
-    cmdChangeColor1,                  //PWM_0_Command
-    cmdChangeColor1,                  //PWM_0_Command
-    cmd12VStrip,                  //PWM_0_Command
-    cmd12VStrip,                  //PWM_0_Command
-    cmd5VStrip,                  //PWM_0_Command
-    cmd5VStrip,                  //PWM_0_Command
+  cmdNoStrip,                   //PWM_0_Command
+  cmdNoStrip,                   //PWM_0_Command
+  cmdNoStrip,                  //PWM_0_Command
+  cmd5VStrip,                  //PWM_0_Command
+  cmd12VStrip,                  //PWM_0_Command
+  cmdIncreaseBrightness,                  //PWM_0_Command
+  cmdDecreaseBrightness,                  //PWM_0_Command
+  cmdChangeColor1,                  //PWM_0_Command
+  cmdChangeColor2,                  //PWM_0_Command
+  cmdChangeDefaultPattern,                  //PWM_0_Command
+  cmdSetLinearBlend,                  //PWM_0_Command
+  cmdSetNoBlend,                  //PWM_0_Command
+  cmdChangeColor1,                  //PWM_0_Command
+  cmdChangeColor1,                  //PWM_0_Command
+  cmdChangeColor1,                  //PWM_0_Command
+  cmdChangeColor1,                  //PWM_0_Command
+  cmd12VStrip,                  //PWM_0_Command
+  cmd12VStrip,                  //PWM_0_Command
+  cmd5VStrip,                  //PWM_0_Command
+  cmd5VStrip,                  //PWM_0_Command
 };
 
 FunctionList gPatterns[] = {
@@ -134,63 +126,63 @@ FunctionList gPatterns[] = {
   EndtoEndBlend,                //PWM_4_Color1_2
   EndtoEndStaticBlend,          //PWM_4_Color1_2
   testPattern,                  //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Blue,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Blue ,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Blue,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Green,                        //PWM_5_Solid
- Red,                          //PWM_5_Solid
- Blue,                         //PWM_5_Solid
- Violet,                        //PWM_5_Solid 
- Violet,                        //PWM_5_Solid 
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Blue,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Blue ,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Blue,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Green,                        //PWM_5_Solid
+  Red,                          //PWM_5_Solid
+  Blue,                         //PWM_5_Solid
+  Violet,                        //PWM_5_Solid
+  Violet,                        //PWM_5_Solid
   HotPink,                      //PWM_5_Solid
   DarkRed,                      //PWM_5_Solid
   Red,                          //PWM_5_Solid
   RedOrange,                    //PWM_5_Solid
-  Orange,                       //PWM_5_Solid  
+  Orange,                       //PWM_5_Solid
   Gold,                         //PWM_5_Solid
   Yellow,                       //PWM_5_Solid
   LawnGreen,                    //PWM_5_Solid
@@ -213,39 +205,46 @@ FunctionList gPatterns[] = {
 
 void loop() {
 
-  buttonHandler();
-  if (inSetup) {
-    readUserInputs();
-  }
+  //buttonHandler();
 
   if ((inPulse == false) && (updatedLEDs == false)) {
     detachInterrupt(2);//digitalPinToInterrupt(2));
     ledUpdate();
-//    startIndex = startIndex + patternSpeed; /* motion speed */
-  
+    //    startIndex = startIndex + patternSpeed; /* motion speed */
+
+  }
+
+  EVERY_N_MILLISECONDS( 10 ) {
+
+    buttonHandler();
+    
   }
 
   // do some periodic updates
   EVERY_N_MILLISECONDS( 100 ) {
 
+    if (inSetup) {
+      readUserInputs();
+    }
+    
     // slowly cycle the "base color" through the rainbow, used for some patterns
-    gHue++;  
+    gHue++;
 
-    //Pot 1 - User set pattern density, not used for all patterns 
+    //Pot 1 - User set pattern density, not used for all patterns
     patternAdj = constrain(map(analogRead(COLOR1_PIN), 0, 1024, 1, 30), 1, 30);
 
-    //Pot 2 - User set pattern movement speed, not used for all patterns 
+    //Pot 2 - User set pattern movement speed, not used for all patterns
     patternSpeed = constrain(map(analogRead(COLOR2_PIN), 0, 1024, 1, 30), 1, 30);
     startIndex = startIndex + patternSpeed; /* motion speed */
 
     if ((noSignal == true))
-      setStatusNoSignal(); 
+      setStatusNoSignal();
     else
-      setStatusMode(); 
+      setStatusMode();
 
     //Pot 3 - user set strip brightness
-    if (cmdBrightness == false){
-      FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds,NUM_LEDS, 255, 5, 4800)));
+    if (cmdBrightness == false) {
+      FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds, NUM_LEDS, 255, 5, 4800)));
     }
   }
 
@@ -258,24 +257,28 @@ void ledUpdate()
 {
 
   patternStable = true;
-        
+
   //check that the pattern value has been stable. Pattern value is the pattern requested by the user via PWM pulse width measurement.
   for (int i = 0 ; i < patternHistory.capacity() ; i++) {
     if (patternHistory[0] != patternHistory[i])
       patternStable = false; //if any of the elements of the patternHistory buffer don't match, the pattern is not stable
   }
 
-  if(cmdDisableOutput == false)
+  if ((cmdDisableOutput == false) && (inSetup == false))
   {
     if (patternStable) //if the pattern is stable, output and update the current pattern value
     {
       currentPattern = patternHistory[0];
       gPatterns[currentPattern]();
     }
-    else //if pattern is not stable, use the previous stable pattern 
-    { 
-      gPatterns[currentPattern](); 
+    else //if pattern is not stable, use the previous stable pattern
+    {
+      gPatterns[currentPattern]();
     }
+  }
+  else
+  {
+    gPatterns[testPatternDisplay]();
   }
 
   // send the 'leds' array out to the actual LED strip
@@ -288,7 +291,7 @@ void ledUpdate()
 
   updatedLEDs = true; //set status flag to show that LEDs have been updates to latest requested value
 
-  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING); 
+  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
 
 
@@ -296,119 +299,55 @@ void ledUpdate()
 // on three analog PWM output pins to the r, g, and b values respectively.
 void showAnalogRGB( const CRGB& rgb)
 {
-
   analogWrite(REDPIN,   rgb.r );
   analogWrite(GREENPIN, rgb.g );
   analogWrite(BLUEPIN,  rgb.b );
-
 }
 
 void displaySolid( CRGB rgb)
 {
   if (addressableStrip == true) {
-    fill_solid( leds, NUM_LEDS, rgb ); 
+    fill_solid( leds, NUM_LEDS, rgb );
   }
   else {
-     showAnalogRGB( rgb.fadeLightBy(255-map(analogRead(LENGTH_PIN), 0, 1023, 20, 255)) );
+    showAnalogRGB( rgb.fadeLightBy(255 - map(analogRead(LENGTH_PIN), 0, 1023, 20, 255)) );
   }
 }
+
 
 void toggleStripSelect()
 {
-    cmdDisableOutput = false;
-    if (addressableStrip) 
-    {
-      Black();
-      FastLED.show();
-      digitalWrite(IND_PIN,HIGH);
-      addressableStrip = false;
+  cmdDisableOutput = false;
+  if (addressableStrip)
+  {
+    Black();
+    FastLED.show();
+    digitalWrite(IND_PIN, HIGH);
+    addressableStrip = false;
 
-      //EEPROM write takes 3.3ms
-//      if(writeEEPROM)
-//          EEPROM.write(0, addressableStrip);
-    }
-    else
-    {
-      Black();
-      digitalWrite(IND_PIN,LOW);
-      addressableStrip = true;
-      
-      //EEPROM write takes 3.3ms
-//      if(writeEEPROM)
-//        EEPROM.write(0, addressableStrip);
-    }
-  
-}
-
-void setStripSelect(bool newStripState)
-{
-    cmdDisableOutput = false;
-    if (newStripState != addressableStrip)
-       toggleStripSelect();
-}
-
-void setStatusCommand(){
-  // "Purple"
-  digitalWrite(sREDPIN, LOW);
-  digitalWrite(sGREENPIN, HIGH);
-  digitalWrite(sBLUEPIN, LOW);
-}
-
-void setStatusSetup(){ 
-  // "Yellow"
-  digitalWrite(sREDPIN, LOW);
-  digitalWrite(sGREENPIN, LOW);
-  digitalWrite(sBLUEPIN, HIGH);
-}
-
-void setStatusRun(){
-  // "Blue"
-  digitalWrite(sREDPIN, HIGH);
-  digitalWrite(sGREENPIN, HIGH);
-  digitalWrite(sBLUEPIN, LOW);
-}
-
-void setStatusMode(){
-
-  if(inSetup == false){ 
-    setStatusRun();}   // "Blue"
-  else { 
-    setStatusSetup();}  // "Yellow" 
-}
-
-
-void setStatusNoSignal(){
-  // "Blink Output"
-
-  if(inSetup == false)
-  { 
-    digitalWrite(sGREENPIN, HIGH);
-    digitalWrite(sREDPIN, HIGH);  
-  
-    if (digitalRead(sBLUEPIN) == HIGH){
-      digitalWrite(sBLUEPIN, LOW);}
-    else{
-      digitalWrite(sBLUEPIN, HIGH); }
+    //EEPROM write takes 3.3ms
+    if(writeEEPROM)
+        EEPROM.write(0, addressableStrip);
   }
   else
   {
-    digitalWrite(sBLUEPIN, HIGH);
+    Black();
+    digitalWrite(IND_PIN, LOW);
+    addressableStrip = true;
 
-    if (digitalRead(sGREENPIN) == HIGH){
-      digitalWrite(sGREENPIN, LOW);
-      digitalWrite(sREDPIN, LOW);}
-    else{
-      digitalWrite(sGREENPIN, HIGH); 
-      digitalWrite(sREDPIN, HIGH);}
+    //EEPROM write takes 3.3ms
+    if(writeEEPROM)
+      EEPROM.write(0, addressableStrip);
   }
+
 }
 
-void setStatusError(){
-  // "Blue"
-  digitalWrite(sREDPIN, LOW);
-  digitalWrite(sGREENPIN, HIGH);
-  digitalWrite(sBLUEPIN, HIGH);
-}
 
+void setStripSelect(bool newStripState)
+{
+  cmdDisableOutput = false;
+  if (newStripState != addressableStrip)
+    toggleStripSelect();
+}
 
 
