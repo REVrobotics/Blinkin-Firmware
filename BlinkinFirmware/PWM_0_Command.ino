@@ -27,11 +27,11 @@ void cmdSaveSettings(char var){
   //EEPROM write takes 3.3ms
   //if(writeEEPROM)
   {
-      //EEPROM.write(0, addressableStrip);
-      //EEPROM.write(1, COLOR1);
-      //EEPROM.write(2, COLOR2);
-      //EEPROM.write(3, NUM_LEDS);
-      //EEPROM.write(4, noSignalPatternDisplay);
+      //EEPROM.update(0, addressableStrip);
+      //EEPROM.update(1, COLOR1);
+      //EEPROM.update(2, COLOR2);
+      //EEPROM.update(3, NUM_LEDS);
+      //EEPROM.update(4, noSignalPatternDisplay);
   }
 
 }

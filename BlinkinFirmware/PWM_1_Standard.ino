@@ -80,22 +80,21 @@ void confetti()
 
 void sinelon()
 {
-  if (addressableStrip == true) {
-  // a colored dot sweeping back and forth, with fading trails
-  fadeToBlackBy( leds, NUM_LEDS, 20);
-  int pos = beatsin8(patternSpeed,0,NUM_LEDS);
-  static int prevpos = 0;
-  if( pos < prevpos ) { 
-    fill_solid( leds+pos, (prevpos-pos)+1, CHSV(gHue,220,255));
-  } else { 
+  if (addressableStrip == true) 
+  {
+    // a colored dot sweeping back and forth, with fading trails
+    fadeToBlackBy( leds, NUM_LEDS, 20);
+    int pos = beatsin8(15,0,NUM_LEDS);
+    static int prevpos = 0;
+    if( pos < prevpos ) { 
+      fill_solid( leds+pos, (prevpos-pos)+1, CHSV(gHue,220,255));
+  } 
+  else 
+  { 
     fill_solid( leds+prevpos, (pos-prevpos)+1, CHSV( gHue,220,255));
   }
   prevpos = pos;
   }
-  else {
-
-  }
-
 }
 
 void bpm_RGB(){bpm(RainbowColors_p);}
@@ -125,22 +124,6 @@ void bpm(CRGBPalette16 palette)
 
   }
 }
-
-//void juggle() {
-//  if (addressableStrip == true) {
-//    // eight colored dots, weaving in and out of sync with each other
-//    fadeToBlackBy( leds, NUM_LEDS, 20);
-//    byte dothue = 0;
-//    for ( int i = 0; i < 8; i++) {
-//      leds[beatsin16(i + 7, 0, NUM_LEDS)] |= CHSV(dothue, 200, 255);
-//      dothue += 32;
-//    }
-//  }
-//  else {
-//
-//  }
-//
-//}
 
 
 #define SPARKING 120

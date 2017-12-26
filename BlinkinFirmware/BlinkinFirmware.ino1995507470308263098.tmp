@@ -35,7 +35,7 @@ void setup() {
   pinMode(SS_PIN, INPUT);
   digitalWrite(SS_PIN, INPUT_PULLUP);  // set pullup on analog pin 0
 
-  //initEEPROM();
+  initEEPROM();
   
   // Set-up the custom palette using the team colors COLOR1 and COLOR2
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
@@ -45,17 +45,11 @@ void setup() {
     patternHistory.unshift(noSignalPatternDisplay);
   }
 
-//  // FastLED declaration
-//  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-//  // Enable at a safe starting brightness
-//  FastLED.setBrightness( BRIGHTNESS );
-//  //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
-
-    FastLED.addLeds<LED_TYPE,LED_PIN,COLOR_ORDER>(leds, NUM_LEDS); //.setCorrection(TypicalLEDStrip);
-  //FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-
-  // set master brightness control
-  FastLED.setBrightness(BRIGHTNESS);
+  // FastLED declaration
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  // Enable at a safe starting brightness
+  FastLED.setBrightness( BRIGHTNESS );
+  //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
 
   // Dual LEDs for indicating which type of LED strip is selected
   //LOW for 5V, HIGH for 12V
@@ -71,10 +65,10 @@ void setup() {
   }
 
   //call timer set-up routine from interrupt tab
-  timerConfiguration();
+  //timerConfiguration();
 
   // when pin D2(Servo input) goes high, call the rising function
-  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
+  //attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
 
 //List of patterns.  Each is defined as a separate function in the specified tab.
@@ -229,7 +223,7 @@ void loop() {
 //  }
 
   // do some periodic updates
-  EVERY_N_MILLISECONDS( 20 ) {
+  EVERY_N_MILLISECONDS( 100 ) {
 
 //    if (inSetup) {
 //      readUserInputs();
@@ -245,10 +239,10 @@ void loop() {
 //    patternSpeed = constrain(map(analogRead(COLOR2_PIN), 0, 1024, 1, 30), 1, 30);
 //    startIndex = startIndex + patternSpeed; /* motion speed */
 
-//    if ((noSignal == true))
-//      setStatusNoSignal();
-//    else
-//      setStatusMode();
+    if ((noSignal == true))
+      setStatusNoSignal();
+    else
+      setStatusMode();
 
     //Pot 3 - user set strip brightness
 //    if (cmdBrightness == false) {

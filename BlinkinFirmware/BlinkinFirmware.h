@@ -1,5 +1,5 @@
 //#define FASTLED_INTERRUPT_RETRY_COUNT 3
-//#define FASTLED_ALLOW_INTERRUPTS 0
+#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 #include <EEPROM.h>
@@ -31,16 +31,23 @@ FASTLED_USING_NAMESPACE
 #define COLOR2_PIN      A7 
 #define LENGTH_PIN      A0 
 
-#define BRIGHTNESS  255
+//#define BRIGHTNESS  255
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS 144
-#define FRAMES_PER_SECOND 120
+#define NUM_LEDS 120
+#define BRIGHTNESS          96
+//#define FRAMES_PER_SECOND 120
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
 #define NOSIGNALPATTERN 8
 #define TESTPATTERN 25
+
+#define SS_EE       10
+#define COLOR1_EE   12
+#define COLOR2_EE   14
+#define LED_EE      16
+#define PATTERN_EE  18
 
 //unsigned int NUM_LEDS = 240;
 
@@ -57,7 +64,7 @@ volatile uint16_t prev_time = 0;
 volatile boolean inPulse = false;
 volatile boolean updatedLEDs = true;
 volatile boolean inSetup = false;
-boolean noSignal = false;
+volatile boolean noSignal = false;
 
 unsigned long modeButtonHoldCount = 0;
 unsigned int ssButtonHoldCount = 0;
@@ -67,31 +74,31 @@ boolean stripTransistion = false;
 
 boolean addressableStrip = true;
 
-boolean commandSeq = false;
-char currCommand = 0;
+volatile boolean commandSeq = false;
+volatile char currCommand = 0;
 
 CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
 
-CircularBuffer<short,5> patternHistory;
-short currentPattern = 0;  
-bool patternStable = true;
+volatile CircularBuffer<byte,5> patternHistory;
+volatile short currentPattern = 0;  
+volatile bool patternStable = true;
 
-CircularBuffer<short,15> lengthHistory; 
+CircularBuffer<uint8_t,15> lengthHistory; 
 bool lengthStable = false;
 
-CircularBuffer<short,5> color1History; 
+CircularBuffer<uint8_t,5> color1History; 
 bool color1Stable = false;
 char COLOR1 = 13;
 char COLOR1temp = COLOR1;
 
-CircularBuffer<short,5> color2History;  
+CircularBuffer<uint8_t,5> color2History;  
 bool color2Stable = false;
 char COLOR2 = 5;
 char COLOR2temp = COLOR2;
 
-uint8_t noSignalPatternDisplay = NOSIGNALPATTERN;
+volatile  uint8_t noSignalPatternDisplay = NOSIGNALPATTERN;
 uint8_t testPatternDisplay = TESTPATTERN;
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
@@ -99,7 +106,7 @@ static uint8_t startIndex = 0;
 uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
 
-
+//uint8_t BRIGHTNESS = 255;
 
 #define HOT_PINK 0xFF00AA
 #define DARK_RED 0x990000
@@ -128,4 +135,3 @@ uint8_t patternAdj = 3;
 const CRGB colorList[] PROGMEM = {HOT_PINK, DARK_RED, RED     , RED_ORNG, ORANGE  , GOLD    , YELLOW  , LAWN_GRN, LIME    , DARK_GRN, GREEN   , BLUE_GRN, AQUA    , SKYBLUE , DARK_BLU, BLUE    , B_VIOLET, VIOLET  , WHITE   , GRAY    , DARKGRAY, BLACK};
 
 
-void bpm(CRGBPalette16 palette);

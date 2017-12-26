@@ -23,7 +23,7 @@ void timerConfiguration(){
 }
 
 ISR(TIMER1_COMPA_vect) { 
-
+  detachInterrupt(2);
   
   patternHistory.unshift(noSignalPatternDisplay); 
 

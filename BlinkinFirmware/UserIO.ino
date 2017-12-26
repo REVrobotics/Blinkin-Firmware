@@ -28,11 +28,11 @@ void setupMode()
     //COLOR2 = COLOR2temp;
     //NUM_LEDS = NUM_LEDStemp;
 
-    //addressableStrip = EEPROM.read(0);
-    COLOR1 = EEPROM.read(1);
-    COLOR2 = EEPROM.read(2);
-    //NUM_LEDS = EEPROM.read(3);
-    //noSignalPatternDisplay = EEPROM.read(4); 
+    //addressableStrip = EEPROM.read(SS_EE);
+    COLOR1 = EEPROM.read(COLOR1_EE);
+    COLOR2 = EEPROM.read(COLOR2_EE);
+    //NUM_LEDS = EEPROM.read(LED_EE);
+    //noSignalPatternDisplay = EEPROM.read(PATTERN_EE); 
 
     SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
     
@@ -134,9 +134,9 @@ void buttonHandler()
   {
     ssButtonHoldCount++;
     
-    if ((digitalRead(MODE_PIN) == HIGH) && (programButtonHoldCount == 0))
+    if ((digitalRead(MODE_PIN) == HIGH) && (programButtonHoldCount == 0) && (inSetup == false))
     {
-      if (ssButtonHoldCount > 225)
+      if (ssButtonHoldCount > 80)
       {
         ssButtonHoldCount = 0;
         toggleStripSelect();
@@ -146,9 +146,9 @@ void buttonHandler()
   }
   else // SS_PIN == HIGH
   {
-    if ((ssButtonHoldCount > 5) && (programButtonHoldCount == 0) )
+    if ((ssButtonHoldCount > 20) && (programButtonHoldCount == 0) )
     {
-      if ((noSignal == true) && (inSetup == false))
+      if ((noSignal == true) && (inSetup == true))
       {
         if (stripTransistion == true)
         {
@@ -172,7 +172,7 @@ void buttonHandler()
     
     if ((digitalRead(SS_PIN) == HIGH) && (programButtonHoldCount == 0))
     {
-      if (modeButtonHoldCount > 225)
+      if (modeButtonHoldCount > 180)
       {
         modeButtonHoldCount = 0;
         setupMode();
@@ -182,9 +182,9 @@ void buttonHandler()
   }
   else // MODE_PIN == HIGH
   {
-    if ((modeButtonHoldCount > 5) && (programButtonHoldCount == 0) )
+    if ((modeButtonHoldCount > 20) && (programButtonHoldCount == 0) )
     {
-      if ((noSignal == true) && (inSetup == false))
+      if ((noSignal == true) && (inSetup == true))
       {
         if (setupTransistion == true)
         {
@@ -201,7 +201,7 @@ void buttonHandler()
   }
 
   // Both Buttons Pressed Logic
-  if ((programButtonHoldCount > 150) )
+  if ((programButtonHoldCount > 150) && (inSetup == true))
   {
     setStatusEEPROM(); 
 
@@ -210,12 +210,7 @@ void buttonHandler()
       //write EEPROM
       saveDefaults();
       
-      if(inSetup == true){
-        setupMode();
-      }
-      else{
-        noSignalPatternDisplay = EEPROM.read(4); 
-      }
+      setupMode();
     }
     
     ssButtonHoldCount = 0;
@@ -278,16 +273,11 @@ void saveDefaults()
   //EEPROM write takes 3.3ms
   if(writeEEPROM)
   {
-    if(EEPROM.read(0) != addressableStrip)
-      EEPROM.write(0, addressableStrip);
-    if(EEPROM.read(1) != COLOR1)
-      EEPROM.write(1, COLOR1);
-    if(EEPROM.read(2) != COLOR2)
-      EEPROM.write(2, COLOR2);
-    if(EEPROM.read(3) != NUM_LEDS)
-      EEPROM.write(3, NUM_LEDS);
-    if(EEPROM.read(4) != noSignalPatternDisplay)
-      EEPROM.write(4, noSignalPatternDisplay);
+      EEPROM.update(SS_EE, addressableStrip);
+      EEPROM.update(COLOR1_EE, COLOR1);
+      EEPROM.update(COLOR2_EE, COLOR2);
+      EEPROM.update(LED_EE, NUM_LEDS);
+      EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
   }
   
 }
@@ -299,36 +289,36 @@ void initEEPROM()
     //EEPROM write takes 3.3ms
     if(writeEEPROM)
     {      
-      EEPROM.write(0, addressableStrip);
-      EEPROM.write(1, COLOR1);
-      EEPROM.write(2, COLOR2);
-      EEPROM.write(3, NUM_LEDS);
-      EEPROM.write(4, noSignalPatternDisplay);
+      EEPROM.write(SS_EE, addressableStrip);
+      EEPROM.write(COLOR1_EE, COLOR1);
+      EEPROM.write(COLOR2_EE, COLOR2);
+      EEPROM.write(LED_EE, NUM_LEDS);
+      EEPROM.write(PATTERN_EE, noSignalPatternDisplay);
     }
   }
   else
   {
     // Check if defaults have been stored in EEPROM
-    if (EEPROM.read(5) == 0x42) //defaults have been saved, reload variables from them
-    {
-      addressableStrip = EEPROM.read(0);
-      COLOR1 = EEPROM.read(1);
-      COLOR2 = EEPROM.read(2);
-      //NUM_LEDS = 240;//EEPROM.read(3);
-      noSignalPatternDisplay = EEPROM.read(4);
-    }
-    else //first time running program, write intial values to EEPROM
+    if (EEPROM.read(COLOR1_EE) == 0xFF) //defaults have not been saved, load variables into them
     {
       //EEPROM write takes 3.3ms
       if(writeEEPROM)
       {      
-        EEPROM.write(0, addressableStrip);
-        EEPROM.write(1, COLOR1);
-        EEPROM.write(2, COLOR2);
-        EEPROM.write(3, NUM_LEDS);
-        EEPROM.write(4, noSignalPatternDisplay);
-        EEPROM.write(5, 0x42);
+        EEPROM.write(SS_EE, addressableStrip);
+        EEPROM.write(COLOR1_EE, COLOR1);
+        EEPROM.write(COLOR2_EE, COLOR2);
+        EEPROM.write(LED_EE, NUM_LEDS);
+        EEPROM.write(PATTERN_EE, noSignalPatternDisplay);
+        //EEPROM.write(5, 0x42);
       }
+    }
+    else  //reload from saved values
+    {
+      addressableStrip = EEPROM.read(SS_EE);
+      COLOR1 = EEPROM.read(COLOR1_EE);
+      COLOR2 = EEPROM.read(COLOR2_EE);
+      //NUM_LEDS = 240;//EEPROM.read(LED_EE);
+      noSignalPatternDisplay = EEPROM.read(PATTERN_EE);
     }
   }
 }
