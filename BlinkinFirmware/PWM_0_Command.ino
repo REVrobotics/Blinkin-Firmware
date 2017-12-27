@@ -25,14 +25,14 @@ void cmdChangeDefaultPattern(char var){  noSignalPatternDisplay = var; }
 void cmdSaveSettings(char var){
   
   //EEPROM write takes 3.3ms
-  //if(writeEEPROM)
-  {
-      //EEPROM.update(0, addressableStrip);
-      //EEPROM.update(1, COLOR1);
-      //EEPROM.update(2, COLOR2);
-      //EEPROM.update(3, NUM_LEDS);
-      //EEPROM.update(4, noSignalPatternDisplay);
-  }
+//  if(writeEEPROM)
+//  {
+//      EEPROM.update(SS_EE, addressableStrip);
+//      EEPROM.update(COLOR1_EE, COLOR1);
+//      EEPROM.update(COLOR2_EE, COLOR2);
+//      EEPROM.update(LED_EE, stripLength);
+//      EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
+//  }
 
 }
 

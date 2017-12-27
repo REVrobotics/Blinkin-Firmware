@@ -1,5 +1,5 @@
-//#define FASTLED_INTERRUPT_RETRY_COUNT 3
-#define FASTLED_ALLOW_INTERRUPTS 0
+//#define FASTLED_INTERRUPT_RETRY_COUNT 0
+//#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 #include <EEPROM.h>
@@ -31,11 +31,9 @@ FASTLED_USING_NAMESPACE
 #define COLOR2_PIN      A7 
 #define LENGTH_PIN      A0 
 
-//#define BRIGHTNESS  255
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS 120
-#define BRIGHTNESS          96
 //#define FRAMES_PER_SECOND 120
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
@@ -48,8 +46,6 @@ FASTLED_USING_NAMESPACE
 #define COLOR2_EE   14
 #define LED_EE      16
 #define PATTERN_EE  18
-
-//unsigned int NUM_LEDS = 240;
 
 CRGB leds[NUM_LEDS];
 CRGB endclr;
@@ -85,28 +81,30 @@ volatile CircularBuffer<byte,5> patternHistory;
 volatile short currentPattern = 0;  
 volatile bool patternStable = true;
 
-CircularBuffer<uint8_t,15> lengthHistory; 
-bool lengthStable = false;
-
-CircularBuffer<uint8_t,5> color1History; 
-bool color1Stable = false;
-char COLOR1 = 13;
-char COLOR1temp = COLOR1;
-
-CircularBuffer<uint8_t,5> color2History;  
-bool color2Stable = false;
-char COLOR2 = 5;
-char COLOR2temp = COLOR2;
-
 volatile  uint8_t noSignalPatternDisplay = NOSIGNALPATTERN;
 uint8_t testPatternDisplay = TESTPATTERN;
 
+uint8_t lengthHistory; 
+
+CircularBuffer<uint8_t,3> color1History; 
+bool color1Stable = true;
+char COLOR1 = 13;
+char COLOR1temp = COLOR1;
+
+CircularBuffer<uint8_t,3> color2History;  
+bool color2Stable = true;
+char COLOR2 = 5;
+char COLOR2temp = COLOR2;
+
+
+
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
-static uint8_t startIndex = 0;
+uint8_t startIndex = 0;
 uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
 
-//uint8_t BRIGHTNESS = 255;
+uint8_t brightness = 200;
+uint8_t stripLength = 60;
 
 #define HOT_PINK 0xFF00AA
 #define DARK_RED 0x990000

@@ -16,8 +16,8 @@ void rainbow(CRGBPalette16 palette)
     uint8_t patternLength = map(patternAdj, 0, 30, 1, 10);
     
     // FastLED's built-in rainbow generator
-    for( int i = 0; i < stripLength; i++) {
-        leds[i] = ColorFromPalette( palette, colorIndex, brightness, currentBlending);
+    for( int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = ColorFromPalette( palette, colorIndex, BRIGHTNESS, currentBlending);
         colorIndex += patternLength; 
         //fill_rainbow( leds, NUM_LEDS, gHue, 7);
     }
@@ -26,7 +26,7 @@ void rainbow(CRGBPalette16 palette)
     //gHue = gHue + 1;
     gHue = gHue + (patternSpeed/5);
 
-    displaySolid( ColorFromPalette(palette, gHue ));
+    displaySolid( ColorFromPalette(palette, gHue ) );
     
     delay(5);
   }
@@ -54,7 +54,7 @@ void addGlitter( fract8 chanceOfGlitter, CRGB gColor)
   if (addressableStrip == true) {
     if ( random8() < chanceOfGlitter) {
       //leds[ random16(NUM_LEDS) ] += CRGB::Black;
-      leds[ random8(stripLength) ] = gColor;
+      leds[ random8(NUM_LEDS) ] = gColor;
     }
   }
   else {
@@ -66,8 +66,8 @@ void confetti()
 {
   if (addressableStrip == true) {
     // random colored speckles that blink in and fade smoothly
-    fadeToBlackBy( leds, stripLength, 10);
-    int pos = random8(stripLength);
+    fadeToBlackBy( leds, NUM_LEDS, 10);
+    int pos = random8(NUM_LEDS);
     leds[pos] += CHSV( gHue + random8(64), 200, 255);
   }
   else {
@@ -90,8 +90,8 @@ void sinelon()
   if (addressableStrip == true) 
   {
       // a colored dot sweeping back and forth, with fading trails
-      fadeToBlackBy( leds, stripLength, 40);
-      int pos = beatsin8(15,0,stripLength-1);
+      fadeToBlackBy( leds, NUM_LEDS, 40);
+      int pos = beatsin8(15,0,NUM_LEDS-1);
       static int prevpos = 0;
       if( pos < prevpos ) 
       { 
@@ -123,17 +123,13 @@ void bpm(CRGBPalette16 palette)
     //CRGBPalette16 palette = PartyColors_p;
     uint8_t beat = beatsin8( BeatsPerMinute, 64, 255);
     //uint8_t beat = beatsin8( map(patternSpeed, 0, 30, 10, 200), 0, 255);
-    for ( int i = 0; i < stripLength; i++) { 
+    for ( int i = 0; i < NUM_LEDS; i++) { 
       //leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i *30));
       leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * patternLength));
     }
   }
   else {
-    gHue = gHue + (patternSpeed/5);
 
-    displaySolid( ColorFromPalette(palette, gHue ));
-    
-    delay(5);
   }
 }
 
@@ -146,16 +142,16 @@ void Fire2012()
 
   if (addressableStrip == true) {
     // Array of temperature readings at each simulation cell
-    static byte heat[NUM_LEDS];
+    static byte heat[240];
 
     
     // Step 1.  Cool down every cell a little
-    for ( int i = 0; i < stripLength; i++) {
-      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / stripLength) + 2));
+    for ( int i = 0; i < NUM_LEDS; i++) {
+      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS) + 2));
     }
 
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-    for ( int k = stripLength - 1; k >= 2; k--) {
+    for ( int k = NUM_LEDS - 1; k >= 2; k--) {
       heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2] ) / 3;
     }
 
@@ -166,11 +162,11 @@ void Fire2012()
     }
 
     // Step 4.  Map from heat cells to LED colors
-    for ( int j = 0; j < stripLength; j++) {
+    for ( int j = 0; j < NUM_LEDS; j++) {
       CRGB color = HeatColor( heat[j]);
       int pixelnumber;
       if ( gReverseDirection ) {
-        pixelnumber = (stripLength - 1) - j;
+        pixelnumber = (NUM_LEDS - 1) - j;
       } else {
         pixelnumber = j;
       }

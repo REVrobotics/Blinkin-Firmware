@@ -8,18 +8,18 @@ void EndtoEndBlend() {
   endclr = blend(colorList[COLOR1], colorList[COLOR2], speed);
   midclr = blend(colorList[COLOR2], colorList[COLOR1], speed);
 
-  fill_gradient_RGB(leds, 0, endclr, NUM_LEDS/2, midclr);
-  fill_gradient_RGB(leds, NUM_LEDS/2+1, midclr, NUM_LEDS-1, endclr);
+  fill_gradient_RGB(leds, 0, endclr, stripLength/2, midclr);
+  fill_gradient_RGB(leds, stripLength/2+1, midclr, stripLength-1, endclr);
 }
 
 void EndtoEndStaticBlend() {
-  fill_gradient_RGB(leds, 0, colorList[COLOR1], NUM_LEDS/2, colorList[COLOR2]);
-  fill_gradient_RGB(leds, NUM_LEDS/2+1, colorList[COLOR2], NUM_LEDS-1, colorList[COLOR1]);
+  fill_gradient_RGB(leds, 0, colorList[COLOR1], stripLength/2, colorList[COLOR2]);
+  fill_gradient_RGB(leds, stripLength/2+1, colorList[COLOR2], stripLength-1, colorList[COLOR1]);
 }
 
 void teamSparkle() {
   if (addressableStrip == true) {
-    fill_solid( leds, NUM_LEDS, colorList[COLOR1] );
+    fill_solid( leds, stripLength, colorList[COLOR1] );
     addGlitter(255, colorList[COLOR2]);
   }
   else {

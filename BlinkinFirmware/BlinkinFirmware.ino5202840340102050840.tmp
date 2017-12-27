@@ -1,7 +1,7 @@
 #include "BlinkinFirmware.h"
 
 void setup() {
-  delay(1000); // 1 second delay for start-up
+  delay(3000); // 3 second delay for start-up
 
   // Setup a default palette and blend style
   currentPalette = RainbowColors_p;
@@ -34,7 +34,7 @@ void setup() {
   pinMode(SS_PIN, INPUT);
   digitalWrite(SS_PIN, INPUT_PULLUP);  // set pullup on analog pin 0
 
-  initEEPROM();
+  //initEEPROM();
   
   // Set-up the custom palette using the team colors COLOR1 and COLOR2
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
@@ -47,13 +47,13 @@ void setup() {
 //  // FastLED declaration
 //  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
 //  // Enable at a safe starting brightness
-//  FastLED.setBrightness( brightness );
+//  FastLED.setBrightness( BRIGHTNESS );
 //  //FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1023, 10, 255));
 
   FastLED.addLeds<LED_TYPE,LED_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   // set master brightness control
-  FastLED.setBrightness(brightness);
+  FastLED.setBrightness(BRIGHTNESS);
 
   // Dual LEDs for indicating which type of LED strip is selected
   //LOW for 5V, HIGH for 12V
@@ -68,7 +68,7 @@ void setup() {
     FastLED.show();
   }
 
-  //FastLED.setMaxRefreshRate(200, true);
+  FastLED.setMaxRefreshRate(50, true);
 
   //call timer set-up routine from interrupt tab
   timerConfiguration();
@@ -212,14 +212,17 @@ FunctionList gPatterns[] = {
 
 void loop() {
 
-    //ledUpdate();
     
-  if ((inPulse == false) && (updatedLEDs == false)) {
-    detachInterrupt(2);
+  if ((inPulse == false)){// && (updatedLEDs == false)) {
+    detachInterrupt(2);//digitalPinToInterrupt(2));
     ledUpdate();
+//  FastLED.delay(1000 / 100);
   }
 
-
+//  EVERY_N_MILLISECONDS( 10 ) {
+//    buttonHandler();
+//   
+//  }
   
   EVERY_N_MILLISECONDS( 20 ) {
     startIndex = startIndex + patternSpeed; /* motion speed */ 
@@ -252,9 +255,8 @@ void loop() {
       setStatusMode();
 
     //Pot 3 - user set strip brightness
-    if ((cmdBrightness == false) && (inSetup == false)) {
-      brightness = map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds, stripLength, 255, 5, 4800));
-      FastLED.setBrightness(brightness);
+    if (cmdBrightness == false) {
+      FastLED.setBrightness(map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds, NUM_LEDS, 255, 5, 4800)));
     }
   }
 }
@@ -289,7 +291,7 @@ void ledUpdate()
   }
 
   // send the 'leds' array out to the actual LED strip
-//  //30uS per LED for addressable
+  //30uS per LED for addressable
   if (addressableStrip == true) {
     //update LED display
     FastLED.show();
@@ -314,8 +316,7 @@ void showAnalogRGB( const CRGB& rgb)
 void displaySolid( CRGB rgb)
 {
   if (addressableStrip == true) {
-//    fill_solid( leds, NUM_LEDS, rgb );
-    fill_solid( leds, stripLength, rgb );
+    fill_solid( leds, NUM_LEDS, rgb );
   }
   else {
     showAnalogRGB( rgb.fadeLightBy(255 - map(analogRead(LENGTH_PIN), 0, 1024, 20, 255)) );

@@ -11,17 +11,15 @@ void setupMode()
     testPatternDisplay = TESTPATTERN;
 
     // Save the current settings incase the user doens't want to save on exit
-    //COLOR1temp = COLOR1;
-    //COLOR2temp = COLOR2;
-    //NUM_LEDStemp = NUM_LEDS;
+//    COLOR1temp = COLOR1;
+//    COLOR2temp = COLOR2;
+//    NUM_LEDStemp = stripLength;
     
   }
   // Exit set-up
   else
   {
     // User exited setup
-
-
 
     // Restore old settings if new ones weren't saved
     //COLOR1 = COLOR1temp;
@@ -31,8 +29,10 @@ void setupMode()
     //addressableStrip = EEPROM.read(SS_EE);
     COLOR1 = EEPROM.read(COLOR1_EE);
     COLOR2 = EEPROM.read(COLOR2_EE);
-    //NUM_LEDS = EEPROM.read(LED_EE);
-    //noSignalPatternDisplay = EEPROM.read(PATTERN_EE); 
+    stripLength = EEPROM.read(LED_EE);
+    noSignalPatternDisplay = EEPROM.read(PATTERN_EE); 
+
+    fill_solid( leds, NUM_LEDS, CRGB::Black );
 
     SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
     
@@ -47,25 +47,18 @@ void readUserInputs()
 {
   //read Pot value and translate to colors/strip Length
 
-//  lengthHistory.unshift(map(analogRead(LENGTH_PIN), 0, 1024, 1, 240));
-//
-//    //check that the pattern value has been stable 
-//    for (int i = 0 ; i< lengthHistory.capacity() ; i++){
-//      if (lengthHistory[0] != lengthHistory[i])
-//        lengthStable = false;
-//    }
-//    
-//    if (lengthStable){
-//      if (NUM_LEDS > lengthHistory[0]){
-//         //need loop to only update pixels to black that are > then new length
-//         Black();
-//         FastLED.show();
-//      }
-//      //NUM_LEDS = lengthHistory[0];
-//      //FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);           
-//    }     
-//
-//    lengthStable = true;
+    lengthHistory = map(analogRead(LENGTH_PIN), 0, 1024, 1, 120);
+
+    if (stripLength > lengthHistory){
+       //need loop to only update pixels to black that are > then new length
+       //for stripLength to lengthHistory[0]
+       for( int i = stripLength; i >= lengthHistory; i--)
+       {
+          leds[i] =  CRGB::Black;
+       }
+       FastLED.show();
+    }
+    stripLength = lengthHistory;           
 
 
     color1History.unshift(map(analogRead(COLOR1_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
@@ -73,7 +66,7 @@ void readUserInputs()
     //check that the pattern value has been stable 
     for (int i = 0 ; i< color1History.capacity() ; i++){
       if (color1History[0] != color1History[i])
-        lengthStable = false;
+        color1Stable = false;
     }
     
     if (color1Stable){
@@ -87,7 +80,7 @@ void readUserInputs()
     //check that the pattern value has been stable 
     for (int i = 0 ; i< color2History.capacity() ; i++){
       if (color2History[0] != color2History[i])
-        lengthStable = false;
+        color2Stable = false;
     }
     
     if (color2Stable){
@@ -107,27 +100,6 @@ void buttonHandler()
     programButtonHoldCount++;
   }
 
-//  // Strip Select Button Logic
-//  if(digitalRead(SS_PIN) == LOW)
-//  {
-//    ssButtonHoldCount++;
-//  }
-//  else //SS_PIN == HIGH
-//  {
-//    if ((ssButtonHoldCount > 5) && (programButtonHoldCount == 0) )
-//    {
-//      if (inSetup == true)
-//      {
-//        //increment output pattern
-//        testPatternDisplay = constrain(testPatternDisplay++, 0, 99);
-//      }
-//      else
-//      {
-//        toggleStripSelect();
-//      }
-//      ssButtonHoldCount = 0;
-//    }
-//  }
 
   // Strip Select Button Logic
   if(digitalRead(SS_PIN) == LOW)
@@ -136,7 +108,7 @@ void buttonHandler()
     
     if ((digitalRead(MODE_PIN) == HIGH) && (programButtonHoldCount == 0) && (inSetup == false))
     {
-      if (ssButtonHoldCount > 80)
+      if (ssButtonHoldCount > 60)
       {
         ssButtonHoldCount = 0;
         toggleStripSelect();
@@ -146,7 +118,7 @@ void buttonHandler()
   }
   else // SS_PIN == HIGH
   {
-    if ((ssButtonHoldCount > 20) && (programButtonHoldCount == 0) )
+    if ((ssButtonHoldCount > 10) && (programButtonHoldCount == 0) )
     {
       if ((noSignal == true) && (inSetup == true))
       {
@@ -157,7 +129,7 @@ void buttonHandler()
         else
         {
         //increment output pattern
-        testPatternDisplay = constrain(noSignalPatternDisplay++, 0, 99);
+        testPatternDisplay++;// = constrain(noSignalPatternDisplay++, 0, 99);
         }
       }
       ssButtonHoldCount = 0;
@@ -182,7 +154,7 @@ void buttonHandler()
   }
   else // MODE_PIN == HIGH
   {
-    if ((modeButtonHoldCount > 20) && (programButtonHoldCount == 0) )
+    if ((modeButtonHoldCount > 10) && (programButtonHoldCount == 0) )
     {
       if ((noSignal == true) && (inSetup == true))
       {
@@ -193,7 +165,7 @@ void buttonHandler()
         else
         {
         //increment output pattern
-        testPatternDisplay = constrain(noSignalPatternDisplay--, 0, 99);
+        testPatternDisplay--;// = constrain(noSignalPatternDisplay--, 0, 99);
         }
       }
       modeButtonHoldCount = 0;
@@ -245,8 +217,8 @@ void testPattern()
 
     uint8_t colorIndex = 1;
     
-    for( int i = 0; i < NUM_LEDS; i++) {
-        leds[i] = ColorFromPalette( teamPalette, colorIndex, BRIGHTNESS, currentBlending);
+    for( int i = 0; i < stripLength; i++) {
+        leds[i] = ColorFromPalette( teamPalette, colorIndex, brightness, currentBlending);
         colorIndex += 3; 
         //fill_rainbow( leds, NUM_LEDS, gHue, 7);
     }
@@ -276,7 +248,7 @@ void saveDefaults()
       EEPROM.update(SS_EE, addressableStrip);
       EEPROM.update(COLOR1_EE, COLOR1);
       EEPROM.update(COLOR2_EE, COLOR2);
-      EEPROM.update(LED_EE, NUM_LEDS);
+      EEPROM.update(LED_EE, stripLength);
       EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
   }
   
@@ -292,7 +264,7 @@ void initEEPROM()
       EEPROM.write(SS_EE, addressableStrip);
       EEPROM.write(COLOR1_EE, COLOR1);
       EEPROM.write(COLOR2_EE, COLOR2);
-      EEPROM.write(LED_EE, NUM_LEDS);
+      EEPROM.write(LED_EE, stripLength);
       EEPROM.write(PATTERN_EE, noSignalPatternDisplay);
     }
   }
@@ -307,7 +279,7 @@ void initEEPROM()
         EEPROM.write(SS_EE, addressableStrip);
         EEPROM.write(COLOR1_EE, COLOR1);
         EEPROM.write(COLOR2_EE, COLOR2);
-        EEPROM.write(LED_EE, NUM_LEDS);
+        EEPROM.write(LED_EE, stripLength);
         EEPROM.write(PATTERN_EE, noSignalPatternDisplay);
         //EEPROM.write(5, 0x42);
       }
@@ -317,7 +289,7 @@ void initEEPROM()
       addressableStrip = EEPROM.read(SS_EE);
       COLOR1 = EEPROM.read(COLOR1_EE);
       COLOR2 = EEPROM.read(COLOR2_EE);
-      //NUM_LEDS = 240;//EEPROM.read(LED_EE);
+      stripLength = EEPROM.read(LED_EE);
       noSignalPatternDisplay = EEPROM.read(PATTERN_EE);
     }
   }

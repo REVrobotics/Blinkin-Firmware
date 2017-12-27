@@ -10,6 +10,7 @@ void timerConfiguration(){
   
   // set compare match register
   OCR1A = 65000; //No signal detected after 0.0325 seconds (max counter of 65536) 
+//  OCR1A = 50000; //No signal detected after 0.025 seconds (max counter of 65536) 
   
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
@@ -99,4 +100,5 @@ void ISRfalling() {
 
   prev_time = 0;
   inPulse = false;
+  //attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
