@@ -53,15 +53,14 @@ void ISRfalling() {
 
   detachInterrupt(2);
   
-  pwm_value = TCNT1 - prev_time;
+  uint16_t pwm_value = TCNT1 - prev_time;
 
   //TCNT1*0.0000005 = pulse width (seconds)
   if ((pwm_value <= 4000) && (pwm_value >= 1990)) //4400 ~=2.2mS
   {
     if (commandSeq == false)
     {
-      //patternHistory.unshift(constrain(map(pwm_value, 2000, 4001, 0, (ARRAY_SIZE(gPatterns))),0,(ARRAY_SIZE(gPatterns)) )); //4400 was 2200ms and 1600 was 800ms
-      patternHistory.unshift(constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4400 was 2200ms and 1600 was 800ms
+      patternHistory.unshift((byte)constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4000 is 2000ms and 1000 is 1000ms
     }
     else
     {
@@ -71,7 +70,7 @@ void ISRfalling() {
       setStatusRun();
     }
   }
-  else if ((pwm_value > 4000) && (pwm_value <= 4400)) //2.00 ms to 2.20 ms
+  else if ((pwm_value > 4200) && (pwm_value <= 4400)) //2.10 ms to 2.20 ms
   {
     if ((inSetup == false))// && (commandSeq == false))
     {
@@ -82,7 +81,7 @@ void ISRfalling() {
         // Indicate Command mode signal detected    
         setStatusCommand();
         
-        currCommand = constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19);
+        currCommand = constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 9);
 //      }
     }
 //    else if ((inSetup == false) && (commandSeq == true))
@@ -94,11 +93,10 @@ void ISRfalling() {
   }
   else if ((pwm_value < 2000) && (pwm_value >= 1200))
   {
-    //patternHistory.unshift(noSignalPatternDisplay);
-    //gCommands[map(pwm_value, 4001, 4400, 0, (ARRAY_SIZE(gCommands)))]();
+    
   }
 
   prev_time = 0;
   inPulse = false;
-  //attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
+
 }

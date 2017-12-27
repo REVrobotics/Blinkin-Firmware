@@ -33,12 +33,12 @@ FASTLED_USING_NAMESPACE
 
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS 120
+#define NUM_LEDS 240
 //#define FRAMES_PER_SECOND 120
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define NOSIGNALPATTERN 8
+#define NOSIGNALPATTERN 24
 #define TESTPATTERN 25
 
 #define SS_EE       10
@@ -48,13 +48,10 @@ FASTLED_USING_NAMESPACE
 #define PATTERN_EE  18
 
 CRGB leds[NUM_LEDS];
-CRGB endclr;
-CRGB midclr;
 
-boolean cmdBrightness = false;
 boolean cmdDisableOutput = false;
 
-volatile uint16_t pwm_value = 1500;
+//volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
 
 volatile boolean inPulse = false;
@@ -62,39 +59,39 @@ volatile boolean updatedLEDs = true;
 volatile boolean inSetup = false;
 volatile boolean noSignal = false;
 
-unsigned long modeButtonHoldCount = 0;
-unsigned int ssButtonHoldCount = 0;
-unsigned int programButtonHoldCount = 0;
+uint8_t modeButtonHoldCount = 0;
+uint8_t ssButtonHoldCount = 0;
+uint8_t programButtonHoldCount = 0;
 boolean setupTransistion = false;
 boolean stripTransistion = false;
 
 boolean addressableStrip = true;
 
 volatile boolean commandSeq = false;
-volatile char currCommand = 0;
+uint8_t currCommand = 0;
 
 CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
 
 volatile CircularBuffer<byte,5> patternHistory;
-volatile short currentPattern = 0;  
-volatile bool patternStable = true;
+byte currentPattern = NOSIGNALPATTERN;  
+//volatile bool patternStable = true;
 
-volatile  uint8_t noSignalPatternDisplay = NOSIGNALPATTERN;
-uint8_t testPatternDisplay = TESTPATTERN;
+volatile byte noSignalPatternDisplay = NOSIGNALPATTERN;
+byte testPatternDisplay = TESTPATTERN;
 
-uint8_t lengthHistory; 
+//uint8_t lengthHistory; 
 
-CircularBuffer<uint8_t,3> color1History; 
-bool color1Stable = true;
-char COLOR1 = 13;
-char COLOR1temp = COLOR1;
+CircularBuffer<byte,3> color1History; 
+//bool color1Stable = true;
+byte COLOR1 = 13;
+//byte COLOR1temp = COLOR1;
 
-CircularBuffer<uint8_t,3> color2History;  
-bool color2Stable = true;
-char COLOR2 = 5;
-char COLOR2temp = COLOR2;
+CircularBuffer<byte,3> color2History;  
+//bool color2Stable = true;
+byte COLOR2 = 5;
+//byte COLOR2temp = COLOR2;
 
 
 
@@ -104,7 +101,7 @@ uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
 
 uint8_t brightness = 200;
-uint8_t stripLength = 60;
+uint8_t stripLength = 120;
 
 #define HOT_PINK 0xFF00AA
 #define DARK_RED 0x990000
@@ -129,7 +126,7 @@ uint8_t stripLength = 60;
 #define DARKGRAY 0x1A1A1A
 #define BLACK    0x000000
 
-                                //0xFF00AA, 0x990000, 0xFF0000, 0xFF6A00, 0xFF8C00, 0xFFEA00, 0xFFFF00, 0xBFFF00, 0x80FF00, 0x009900, 0x00FF00, 0x00FFAA, 0x00FFFF, 0x0080FF, 0x000099, 0x0000FF, 0x8000FF, 0xAA00FF, 0xFFFFFF, 0x4D4D4D, 0x1A1A1A, 0x000000, 
-const CRGB colorList[] PROGMEM = {HOT_PINK, DARK_RED, RED     , RED_ORNG, ORANGE  , GOLD    , YELLOW  , LAWN_GRN, LIME    , DARK_GRN, GREEN   , BLUE_GRN, AQUA    , SKYBLUE , DARK_BLU, BLUE    , B_VIOLET, VIOLET  , WHITE   , GRAY    , DARKGRAY, BLACK};
+                           //0xFF00AA,   0x990000, 0xFF0000, 0xFF6A00, 0xFF8C00, 0xFFEA00, 0xFFFF00, 0xBFFF00, 0x80FF00, 0x009900, 0x00FF00, 0x00FFAA, 0x00FFFF, 0x0080FF, 0x000099, 0x0000FF, 0x8000FF, 0xAA00FF, 0xFFFFFF, 0x4D4D4D, 0x1A1A1A, 0x000000, 
+ const  CRGB colorList[]  = {HOT_PINK,   DARK_RED, RED     , RED_ORNG, ORANGE  , GOLD    , YELLOW  , LAWN_GRN, LIME    , DARK_GRN, GREEN   , BLUE_GRN, AQUA    , SKYBLUE , DARK_BLU, BLUE    , B_VIOLET, VIOLET  , WHITE   , GRAY    , DARKGRAY, BLACK};
 
 

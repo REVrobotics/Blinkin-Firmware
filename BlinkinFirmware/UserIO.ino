@@ -10,21 +10,12 @@ void setupMode()
     // Set the current display pattern to the test pattern (a pattern which shows the two team colors)
     testPatternDisplay = TESTPATTERN;
 
-    // Save the current settings incase the user doens't want to save on exit
-//    COLOR1temp = COLOR1;
-//    COLOR2temp = COLOR2;
-//    NUM_LEDStemp = stripLength;
     
   }
   // Exit set-up
   else
   {
     // User exited setup
-
-    // Restore old settings if new ones weren't saved
-    //COLOR1 = COLOR1temp;
-    //COLOR2 = COLOR2temp;
-    //NUM_LEDS = NUM_LEDStemp;
 
     //addressableStrip = EEPROM.read(SS_EE);
     COLOR1 = EEPROM.read(COLOR1_EE);
@@ -46,6 +37,9 @@ void setupMode()
 void readUserInputs()
 {
   //read Pot value and translate to colors/strip Length
+  bool color1Stable = true;
+  bool color2Stable = true;
+  uint8_t lengthHistory = 1; 
 
     lengthHistory = map(analogRead(LENGTH_PIN), 0, 1024, 1, 120);
 
@@ -61,7 +55,7 @@ void readUserInputs()
     stripLength = lengthHistory;           
 
 
-    color1History.unshift(map(analogRead(COLOR1_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
+    color1History.unshift((byte)map(analogRead(COLOR1_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
     
     //check that the pattern value has been stable 
     for (int i = 0 ; i< color1History.capacity() ; i++){
@@ -73,9 +67,9 @@ void readUserInputs()
       COLOR1 = color1History[0];         
     }   
 
-    color1Stable = true;
+    //color1Stable = true;
 
-    color2History.unshift(map(analogRead(COLOR2_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
+    color2History.unshift((byte)map(analogRead(COLOR2_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
 
     //check that the pattern value has been stable 
     for (int i = 0 ; i< color2History.capacity() ; i++){
@@ -88,7 +82,7 @@ void readUserInputs()
     }   
 
     SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
-    color2Stable = true;  
+    //color2Stable = true;  
 }
 
 void buttonHandler()
@@ -236,9 +230,9 @@ void saveDefaults()
 {
   if (testPatternDisplay != TESTPATTERN)
     noSignalPatternDisplay = testPatternDisplay;
-
-  COLOR1temp = COLOR1;
-  COLOR2temp = COLOR2; 
+//
+//  COLOR1temp = COLOR1;
+//  COLOR2temp = COLOR2; 
   
   //SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
   

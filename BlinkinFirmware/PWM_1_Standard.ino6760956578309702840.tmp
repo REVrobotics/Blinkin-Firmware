@@ -138,31 +138,16 @@ void bpm(CRGBPalette16 palette)
 }
 
 
-//Adapted from Fire2012 by Mark Kriegsman
-//FastLED Demo Code: https://github.com/FastLED/FastLED/tree/master/examples/Fire2012
-
-void Fire2012_Low()   { Fire2012(120 , 80);   }
-void Fire2012_High()  { Fire2012(90, 60);    }
-
-
-void Fire2012(uint8_t SPARKING, uint8_t COOLING)
+#define SPARKING 120
+#define COOLING  80
+bool gReverseDirection = false;
+void Fire2012()
 {
 
   if (addressableStrip == true) {
     // Array of temperature readings at each simulation cell
     static byte heat[NUM_LEDS];
-    
-    // SPARKING: What chance (out of 255) is there that a new spark will be lit?
-    // Higher chance = more roaring fire.  Lower chance = more flickery fire.
-    // Default 120, suggested range 50-200.
-    //uint8_t SPARKING  = map(patternAdj, 0, 30, 50, 200); //120
-    
-    // COOLING: How much does the air cool as it rises?
-    // Less cooling = taller flames.  More cooling = shorter flames.
-    // Default 50, suggested range 20-100 
-    //uint8_t COOLING = map(patternSpeed, 0, 30, 20,100); //80
 
-    bool gReverseDirection = false;
     
     // Step 1.  Cool down every cell a little
     for ( int i = 0; i < stripLength; i++) {
@@ -198,21 +183,34 @@ void Fire2012(uint8_t SPARKING, uint8_t COOLING)
 }
 
 
-//Adapted from Mark Kriegsman's code "TwinkleFOX"
-//https://gist.github.com/kriegsman/756ea6dcae8e30845b5a
-void drawTwinkles_RGB(){      drawTwinkles(RainbowColors_p);  }
-void drawTwinkles_Party(){    drawTwinkles(PartyColors_p);    }
-void drawTwinkles_Ocean(){    drawTwinkles(OceanColors_p);    }
-void drawTwinkles_Cloud(){    drawTwinkles(CloudColors_p);    }
-void drawTwinkles_Lava(){     drawTwinkles(LavaColors_p);     }
-void drawTwinkles_Forest(){   drawTwinkles(ForestColors_p);   }
+// Overall twinkle speed.
+// 0 (VERY slow) to 8 (VERY fast).  
+// 4, 5, and 6 are recommended, default is 4.
+#define TWINKLE_SPEED 4
 
+// Overall twinkle density.
+// 0 (NONE lit) to 8 (ALL lit at once).  
+// Default is 5.
+#define TWINKLE_DENSITY 5
+
+// How often to change color palettes.
+#define SECONDS_PER_PALETTE  30
+// Also: toward the bottom of the file is an array 
+// called "ActivePaletteList" which controls which color
+// palettes are used; you can add or remove color palettes
+// from there freely.
 
 // Background color for 'unlit' pixels
 // Can be set to CRGB::Black if desired.
 CRGB gBackgroundColor = CRGB::Black; 
 // Example of dim incandescent fairy light background color
 // CRGB gBackgroundColor = CRGB(CRGB::FairyLight).nscale8_video(16);
+
+// If AUTO_SELECT_BACKGROUND_COLOR is set to 1,
+// then for any palette where the first two entries 
+// are the same, a dimmed version of that color will
+// automatically be used as the background color.
+#define AUTO_SELECT_BACKGROUND_COLOR 0
 
 // If COOL_LIKE_INCANDESCENT is set to 1, colors will 
 // fade out slighted 'reddened', similar to how
@@ -224,12 +222,8 @@ CRGB gBackgroundColor = CRGB::Black;
 //  "CalculateOneTwinkle" on each pixel.  It then displays
 //  either the twinkle color of the background color, 
 //  whichever is brighter.
-
-
-void drawTwinkles( CRGBPalette16 palette )
+void drawTwinkles( )
 {
-  currentPalette = palette;
-  
   // "PRNG16" is the pseudorandom number generator
   // It MUST be reset to the same starting value each time
   // this function is called, so that the sequence of 'random'
@@ -239,11 +233,28 @@ void drawTwinkles( CRGBPalette16 palette )
   uint32_t clock32 = millis();
 
   // Set up the background color, "bg".
-  CRGB bg = gBackgroundColor; // just use the explicitly defined background color
+  // if AUTO_SELECT_BACKGROUND_COLOR == 1, and the first two colors of
+  // the current palette are identical, then a deeply faded version of
+  // that color is used for the background color
+  CRGB bg;
+  if( (AUTO_SELECT_BACKGROUND_COLOR == 1) &&
+      (gCurrentPalette[0] == gCurrentPalette[1] )) {
+    bg = gCurrentPalette[0];
+    uint8_t bglight = bg.getAverageLight();
+    if( bglight > 64) {
+      bg.nscale8_video( 16); // very bright, so scale to 1/16th
+    } else if( bglight > 16) {
+      bg.nscale8_video( 64); // not that bright, so scale to 1/4th
+    } else {
+      bg.nscale8_video( 86); // dim, scale to 1/3rd.
+    }
+  } else {
+    bg = gBackgroundColor; // just use the explicitly defined background color
+  }
 
   uint8_t backgroundBrightness = bg.getAverageLight();
   
-  for( int i = 0; i < stripLength; i++) {//CRGB& pixel: leds) {
+  for( CRGB& pixel: leds) {
     PRNG16 = (uint16_t)(PRNG16 * 2053) + 1384; // next 'random' number
     uint16_t myclockoffset16= PRNG16; // use that number as clock offset
     PRNG16 = (uint16_t)(PRNG16 * 2053) + 1384; // next 'random' number
@@ -262,21 +273,19 @@ void drawTwinkles( CRGBPalette16 palette )
     if( deltabright >= 32 || (!bg)) {
       // If the new pixel is significantly brighter than the background color, 
       // use the new color.
-      leds[i] = c;
-      //pixel = c;
+      pixel = c;
     } else if( deltabright > 0 ) {
       // If the new pixel is just slightly brighter than the background color,
       // mix a blend of the new color and the background color
-      leds[i] = blend( bg, c, deltabright * 8);
-      //pixel = blend( bg, c, deltabright * 8);
+      pixel = blend( bg, c, deltabright * 8);
     } else { 
       // if the new pixel is not at all brighter than the background color,
       // just use the background color.
-      leds[i] = bg;
-      //pixel = bg;
+      pixel = bg;
     }
   }
 }
+
 
 //  This function takes a time in pseudo-milliseconds,
 //  figures out brightness = f( time ), and also hue = f( time )
@@ -289,17 +298,6 @@ void drawTwinkles( CRGBPalette16 palette )
 //  should light at all during this cycle, based on the TWINKLE_DENSITY.
 CRGB computeOneTwinkle( uint32_t ms, uint8_t salt)
 {
-  // Overall twinkle density.
-  // 0 (NONE lit) to 8 (ALL lit at once).  
-  // Default is 5.
-  uint8_t TWINKLE_DENSITY = map(patternAdj, 0, 30, 1, 8);
-
-  // Overall twinkle speed.
-  // 0 (VERY slow) to 8 (VERY fast).  
-  // 4, 5, and 6 are recommended, default is 4.
-  uint8_t TWINKLE_SPEED = map(patternSpeed, 0, 30, 3,7);
-
-  
   uint16_t ticks = ms >> (8-TWINKLE_SPEED);
   uint8_t fastcycle8 = ticks;
   uint16_t slowcycle16 = (ticks >> 8) + salt;
@@ -359,98 +357,4 @@ void coolLikeIncandescent( CRGB& c, uint8_t phase)
 }
 
 
-//Adapted from Mark Kriegsman's code "ColorWavesWithPalettes"
-//https://gist.github.com/kriegsman/8281905786e8b2632aeb
-void colorwaves_RGB()     {   colorwaves(RainbowColors_p);   }
-void colorwaves_Party()   {   colorwaves(PartyColors_p);     }
-void colorwaves_Ocean()   {   colorwaves(OceanColors_p);     }
-void colorwaves_Cloud()   {   colorwaves(CloudColors_p);     }
-void colorwaves_Lava()    {   colorwaves(LavaColors_p);      }
-void colorwavess_Forest() {   colorwaves(ForestColors_p);    }
-
-
-void colorwaves(CRGBPalette16 palette )//CRGB* ledarray, uint16_t numleds, CRGBPalette16& palette) 
-{
-  static uint16_t sPseudotime = 0;
-  static uint16_t sLastMillis = 0;
-  static uint16_t sHue16 = 0;
- 
-  uint8_t sat8 = beatsin88( 87, 220, 250);
-  uint8_t brightdepth = beatsin88( 341, 96, 224);
-  uint16_t brightnessthetainc16 = beatsin88( 203, (25 * 256), (40 * 256));
-  uint8_t msmultiplier = beatsin88(147, 23, 60);
-
-  uint16_t hue16 = sHue16;//gHue * 256;
-  uint16_t hueinc16 = beatsin88(113, 300, 1500);
-  
-  uint16_t ms = millis();
-  uint16_t deltams = ms - sLastMillis ;
-  sLastMillis  = ms;
-  sPseudotime += deltams * msmultiplier;
-  sHue16 += deltams * beatsin88( 400, 5,9);
-  uint16_t brightnesstheta16 = sPseudotime;
-  
-  for( uint16_t i = 0 ; i < stripLength; i++) {
-    hue16 += hueinc16;
-    uint8_t hue8 = hue16 / 256;
-    uint16_t h16_128 = hue16 >> 7;
-    if( h16_128 & 0x100) {
-      hue8 = 255 - (h16_128 >> 1);
-    } else {
-      hue8 = h16_128 >> 1;
-    }
-
-    brightnesstheta16  += brightnessthetainc16;
-    uint16_t b16 = sin16( brightnesstheta16  ) + 32768;
-
-    uint16_t bri16 = (uint32_t)((uint32_t)b16 * (uint32_t)b16) / 65536;
-    uint8_t bri8 = (uint32_t)(((uint32_t)bri16) * brightdepth) / 65536;
-    bri8 += (255 - brightdepth);
-    
-    uint8_t index = hue8;
-    //index = triwave8( index);
-    index = scale8( index, 240);
-
-    CRGB newcolor = ColorFromPalette( palette, index, bri8);
-
-    uint16_t pixelnumber = i;
-    pixelnumber = (stripLength-1) - pixelnumber;
-    
-    nblend( leds[pixelnumber], newcolor, 128);
-  }
-}
-
-
-
-//void CylonBounce(byte red, byte green, byte blue, int EyeSize, int SpeedDelay, int ReturnDelay){
-//
-//  if (addressableStrip == true) 
-//  {
-//    for(int i = 0; i < stripLength-EyeSize-2; i++) {
-//      setAll(0,0,0);
-//      setPixel(i, red/10, green/10, blue/10);
-//      for(int j = 1; j <= EyeSize; j++) {
-//        setPixel(i+j, red, green, blue); 
-//      }
-//      setPixel(i+EyeSize+1, red/10, green/10, blue/10);
-//      showStrip();
-//      delay(SpeedDelay);
-//    }
-//  
-//    delay(ReturnDelay);
-//  
-//    for(int i = NUM_LEDS-EyeSize-2; i > 0; i--) {
-//      setAll(0,0,0);
-//      setPixel(i, red/10, green/10, blue/10);
-//      for(int j = 1; j <= EyeSize; j++) {
-//        setPixel(i+j, red, green, blue); 
-//      }
-//      setPixel(i+EyeSize+1, red/10, green/10, blue/10);
-//      showStrip();
-//      delay(SpeedDelay);
-//    }
-//    
-//    delay(ReturnDelay);
-//  }
-//}
 

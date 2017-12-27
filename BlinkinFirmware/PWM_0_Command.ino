@@ -7,24 +7,27 @@ void cmd5VStrip(char var)             {  setStripSelect(true); }
 
 void cmd12VStrip(char var)            {  setStripSelect(false); }
 
-void cmdIncreaseBrightness(char var)  {}
+//void cmdIncreaseBrightness(char var)  {}
 
-void cmdDecreaseBrightness(char var)  {}
+//void cmdDecreaseBrightness(char var)  {}
 
 void cmdChangeColor1(char var)        {  
-  COLOR1 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); 
-  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);}
+  //COLOR1 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); 
+  COLOR1 = constrain(map(var, 78, 99, 0, 21), 0, 21);
+  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
+  }
 
 void cmdChangeColor2(char var)        {  
-  COLOR2 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); 
+  //COLOR2 = constrain(map(var, 78, 99, 0, ARRAY_SIZE(colorList)), 0, 21); 
+  COLOR2 = constrain(map(var, 78, 99, 0, 21), 0, 21); 
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 }
 
 void cmdChangeDefaultPattern(char var){  noSignalPatternDisplay = var; }
 
-void cmdSaveSettings(char var){
-  
-  //EEPROM write takes 3.3ms
+//void cmdSaveSettings(char var){
+//  
+//  //EEPROM write takes 3.3ms
 //  if(writeEEPROM)
 //  {
 //      EEPROM.update(SS_EE, addressableStrip);
@@ -33,8 +36,8 @@ void cmdSaveSettings(char var){
 //      EEPROM.update(LED_EE, stripLength);
 //      EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
 //  }
-
-}
+//
+//}
 
 void cmdSetNoBlend(char var)          {  currentBlending = NOBLEND; }
 

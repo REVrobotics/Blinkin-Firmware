@@ -82,36 +82,25 @@ typedef void (*FunctionList)();
 typedef void (*CommandList)(char);
 
 //List of commands.  Each is defined as a separate function in the specified tab.
-//typedef void (*SimpleCommandList[])();
-CommandList gCommands[] = {
-  cmdNoStrip,                   //PWM_0_Command
-  cmdNoStrip,                   //PWM_0_Command
-  cmdNoStrip,                  //PWM_0_Command
-  cmd5VStrip,                  //PWM_0_Command
-  cmd12VStrip,                  //PWM_0_Command
-  cmdIncreaseBrightness,                  //PWM_0_Command
-  cmdDecreaseBrightness,                  //PWM_0_Command
-  cmdChangeColor1,                  //PWM_0_Command
-  cmdChangeColor2,                  //PWM_0_Command
-  cmdChangeDefaultPattern,                  //PWM_0_Command
-  cmdSetLinearBlend,                  //PWM_0_Command
-  cmdSetNoBlend,                  //PWM_0_Command
-  cmdChangeColor1,                  //PWM_0_Command
-  cmdChangeColor1,                  //PWM_0_Command
-  cmdChangeColor1,                  //PWM_0_Command
-  cmdChangeColor1,                  //PWM_0_Command
-  cmd12VStrip,                  //PWM_0_Command
-  cmd12VStrip,                  //PWM_0_Command
-  cmd5VStrip,                  //PWM_0_Command
-  cmd5VStrip,                  //PWM_0_Command
+const CommandList gCommands[]  = {
+  cmdNoStrip,                   // 0 ........ PWM_0_Command
+  cmd5VStrip,                   // 1 ........ PWM_0_Command
+  cmd5VStrip,                   // 2 ........ PWM_0_Command
+  cmd12VStrip,                  // 3 ........ PWM_0_Command
+  cmd12VStrip,                  // 4 ........ PWM_0_Command
+  cmdChangeColor1,              // 5 ........ PWM_0_Command
+  cmdChangeColor2,              // 6 ........ PWM_0_Command
+  cmdChangeDefaultPattern,      // 7 ........ PWM_0_Command
+  cmdSetLinearBlend,            // 8 ........ PWM_0_Command
+  cmdSetNoBlend,                // 9 ........ PWM_0_Command
 };
 
-FunctionList gPatterns[] = {
-  rainbow_RGB,                  //PWM_1_Standard
-  rainbow_Party,                  //PWM_1_Standard
-  rainbow_Ocean,                  //PWM_1_Standard
-  rainbow_Lava,                  //PWM_1_Standard
-  rainbow_Cloud,                  //PWM_1_Standard
+const FunctionList gPatterns[]  = {
+  rainbow_RGB,                  // 0 ........ PWM_1_Standard
+  rainbow_Party,                // 0 ........ PWM_1_Standard
+  rainbow_Ocean,                // 0 ........ PWM_1_Standard
+  rainbow_Lava,                 // 0 ........ PWM_1_Standard
+  rainbow_Cloud,                // 0 ........ PWM_1_Standard
   rainbow_Forest,                  //PWM_1_Standard
   rainbowWithGlitter,           //PWM_1_Standard
   confetti,                     //PWM_1_Standard
@@ -123,7 +112,20 @@ FunctionList gPatterns[] = {
   bpm_Lava,                  //PWM_1_Standard
   rainbow_Cloud,                  //PWM_1_Standard
   bpm_Forest,                  //PWM_1_Standard
-  Fire2012,                     //PWM_1_Standard
+  Fire2012_Low,                     //PWM_1_Standard
+  Fire2012_High,
+  drawTwinkles_RGB,
+  drawTwinkles_Party,
+  drawTwinkles_Ocean,
+  drawTwinkles_Cloud,
+  drawTwinkles_Lava,
+  drawTwinkles_Forest,
+  colorwaves_RGB,
+  colorwaves_Party,
+  colorwaves_Ocean,
+  colorwaves_Cloud,
+  colorwaves_Lava,
+  colorwavess_Forest,
   EndtoEndStaticBlend_1,        //PWM_2_Color1
   EndtoEndBlend_2,              //PWM_3_Color2
   EndtoEndStaticBlend_2,        //PWM_4_Color2
@@ -133,21 +135,8 @@ FunctionList gPatterns[] = {
   EndtoEndBlend,                //PWM_4_Color1_2
   EndtoEndStaticBlend,          //PWM_4_Color1_2
   testPattern,                  //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
+  drawTwinkles_Team,                          //PWM_5_Solid
+  colorwavess_Team,                        //PWM_5_Solid
   Red,                          //PWM_5_Solid
   Blue,                         //PWM_5_Solid
   Green,                        //PWM_5_Solid
@@ -212,15 +201,11 @@ FunctionList gPatterns[] = {
 
 void loop() {
 
-    //ledUpdate();
-    
   if ((inPulse == false) && (updatedLEDs == false)) {
     detachInterrupt(2);
     ledUpdate();
   }
 
-
-  
   EVERY_N_MILLISECONDS( 20 ) {
     startIndex = startIndex + patternSpeed; /* motion speed */ 
 
@@ -228,7 +213,6 @@ void loop() {
     gHue++;
 
     buttonHandler();
-   
   }
 
 
@@ -252,7 +236,7 @@ void loop() {
       setStatusMode();
 
     //Pot 3 - user set strip brightness
-    if ((cmdBrightness == false) && (inSetup == false)) {
+    if ( inSetup == false ) {
       brightness = map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds, stripLength, 255, 5, 4800));
       FastLED.setBrightness(brightness);
     }
@@ -263,7 +247,7 @@ void loop() {
 void ledUpdate()
 {
 
-  patternStable = true;
+  bool patternStable = true;
 
   //check that the pattern value has been stable. Pattern value is the pattern requested by the user via PWM pulse width measurement.
   for (int i = 0 ; i < patternHistory.capacity() ; i++) {
