@@ -61,6 +61,8 @@ void setup() {
 
   if (addressableStrip == true) {
     digitalWrite(IND_PIN, LOW);
+    fill_solid( leds, NUM_LEDS, CRGB::Black );
+    FastLED.show();
   }
   else {
     digitalWrite(IND_PIN, HIGH);
@@ -83,119 +85,119 @@ typedef void (*CommandList)(char);
 
 //List of commands.  Each is defined as a separate function in the specified tab.
 const CommandList gCommands[]  = {
-  cmdNoStrip,                   // 0 ........ PWM_0_Command
-  cmd5VStrip,                   // 1 ........ PWM_0_Command
-  cmd5VStrip,                   // 2 ........ PWM_0_Command
-  cmd12VStrip,                  // 3 ........ PWM_0_Command
-  cmd12VStrip,                  // 4 ........ PWM_0_Command
-  cmdChangeColor1,              // 5 ........ PWM_0_Command
-  cmdChangeColor2,              // 6 ........ PWM_0_Command
-  cmdChangeDefaultPattern,      // 7 ........ PWM_0_Command
-  cmdSetLinearBlend,            // 8 ........ PWM_0_Command
-  cmdSetNoBlend,                // 9 ........ PWM_0_Command
+  cmdNoStrip,                   // 0  ........ PWM_0_Command
+  cmd5VStrip,                   // 1  ........ PWM_0_Command
+  cmd5VStrip,                   // 2  ........ PWM_0_Command
+  cmd12VStrip,                  // 3  ........ PWM_0_Command
+  cmd12VStrip,                  // 4  ........ PWM_0_Command
+  cmdChangeColor1,              // 5  ........ PWM_0_Command
+  cmdChangeColor2,              // 6  ........ PWM_0_Command
+  cmdChangeDefaultPattern,      // 7  ........ PWM_0_Command
+  cmdSetLinearBlend,            // 8  ........ PWM_0_Command
+  cmdSetNoBlend,                // 9  ........ PWM_0_Command
 };
 
 const FunctionList gPatterns[]  = {
-  rainbow_RGB,                  // 0 ........ PWM_1_Standard
-  rainbow_Party,                // 0 ........ PWM_1_Standard
-  rainbow_Ocean,                // 0 ........ PWM_1_Standard
-  rainbow_Lava,                 // 0 ........ PWM_1_Standard
-  rainbow_Cloud,                // 0 ........ PWM_1_Standard
-  rainbow_Forest,                  //PWM_1_Standard
-  rainbowWithGlitter,           //PWM_1_Standard
-  confetti,                     //PWM_1_Standard
-  sinelon,                      //PWM_1_Standard
-  bpm,                          //PWM_1_Standard
-  bpm_RGB,                  //PWM_1_Standard
-  bpm_Party,                  //PWM_1_Standard
-  bpm_Ocean,                  //PWM_1_Standard
-  bpm_Lava,                  //PWM_1_Standard
-  rainbow_Cloud,                  //PWM_1_Standard
-  bpm_Forest,                  //PWM_1_Standard
-  Fire2012_Low,                     //PWM_1_Standard
-  Fire2012_High,
-  drawTwinkles_RGB,
-  drawTwinkles_Party,
-  drawTwinkles_Ocean,
-  drawTwinkles_Cloud,
-  drawTwinkles_Lava,
-  drawTwinkles_Forest,
-  colorwaves_RGB,
-  colorwaves_Party,
-  colorwaves_Ocean,
-  colorwaves_Cloud,
-  colorwaves_Lava,
-  colorwavess_Forest,
-  EndtoEndStaticBlend_1,        //PWM_2_Color1
-  EndtoEndBlend_2,              //PWM_3_Color2
-  EndtoEndStaticBlend_2,        //PWM_4_Color2
-  teamSparkle,                //PWM_4_Color1_2
-  rainbow_Team,                 //PWM_4_Color1_2
-  bpm_Team,                     //PWM_4_Color1_2
-  EndtoEndBlend,                //PWM_4_Color1_2
-  EndtoEndStaticBlend,          //PWM_4_Color1_2
-  testPattern,                  //PWM_5_Solid
-  drawTwinkles_Team,                          //PWM_5_Solid
-  colorwavess_Team,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Blue,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Blue ,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Blue,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  Violet,                        //PWM_5_Solid
-  Violet,                        //PWM_5_Solid
-  HotPink,                      //PWM_5_Solid
-  DarkRed,                      //PWM_5_Solid
-  Red,                          //PWM_5_Solid
-  RedOrange,                    //PWM_5_Solid
-  Orange,                       //PWM_5_Solid
-  Gold,                         //PWM_5_Solid
-  Yellow,                       //PWM_5_Solid
-  LawnGreen,                    //PWM_5_Solid
-  Lime,                         //PWM_5_Solid
-  DarkGreen,                    //PWM_5_Solid
-  Green,                        //PWM_5_Solid
-  BlueGreen,                    //PWM_5_Solid
-  Aqua,                         //PWM_5_Solid
-  SkyBlue,                      //PWM_5_Solid
-  DarkBlue,                     //PWM_5_Solid
-  Blue,                         //PWM_5_Solid
-  BlueViolet,                   //PWM_5_Solid
-  Violet,                       //PWM_5_Solid
-  White,                        //PWM_5_Solid
-  Gray,                         //PWM_5_Solid
-  DarkGray,                     //PWM_5_Solid
-  Black                        //PWM_5_Solid
+rainbow_RGB,           //  0..... PWM_1_Standard
+rainbow_Party,         //  1..... PWM_1_Standard
+rainbow_Ocean,         //  2..... PWM_1_Standard
+rainbow_Lava,          //  3..... PWM_1_Standard
+rainbow_Cloud,         //  4..... PWM_1_Standard
+rainbow_Forest,        //  5..... PWM_1_Standard
+rainbowWithGlitter,    //  6..... PWM_1_Standard
+confetti,              //  7..... PWM_1_Standard
+sinelon_RGB,           //  8..... PWM_1_Standard
+sinelon_Party,         //  9..... PWM_1_Standard
+sinelon_Ocean,         // 10..... PWM_1_Standard
+sinelon_Lava,          // 11..... PWM_1_Standard
+sinelon_Cloud,         // 12..... PWM_1_Standard
+sinelon_Forest,        // 13..... PWM_1_Standard
+bpm_RGB,               // 14..... PWM_1_Standard
+bpm_Party,             // 15..... PWM_1_Standard
+bpm_Ocean,             // 16..... PWM_1_Standard
+bpm_Lava,              // 17..... PWM_1_Standard
+bpm_Cloud,             // 18..... PWM_1_Standard
+bpm_Forest,            // 19..... PWM_1_Standard
+Fire2012_Low,          // 20..... PWM_1_Standard
+Fire2012_High,         // 21..... PWM_1_Standard
+drawTwinkles_RGB,      // 22..... PWM_1_Standard
+drawTwinkles_Party,    // 23..... PWM_1_Standard
+drawTwinkles_Ocean,    // 24..... PWM_1_Standard
+drawTwinkles_Cloud,    // 25..... PWM_1_Standard
+drawTwinkles_Lava,     // 26..... PWM_1_Standard
+drawTwinkles_Forest,   // 27..... PWM_1_Standard
+colorwaves_RGB,        // 28..... PWM_1_Standard
+colorwaves_Party,      // 29..... PWM_1_Standard
+colorwaves_Ocean,      // 30..... PWM_1_Standard
+colorwaves_Cloud,      // 31..... PWM_1_Standard
+colorwaves_Lava,       // 32..... PWM_1_Standard
+colorwavess_Forest,    // 33..... PWM_1_Standard
+larsonScanner_Red,     // 34..... PWM_1_Standard
+larsonScanner_Gray,    // 35..... PWM_1_Standard
+lightChase_Red,        // 36..... PWM_1_Standard
+lightChase_Blue,       // 37..... PWM_1_Standard
+lightChase_Gray,       // 38..... PWM_1_Standard
+heartBeat_Red,         // 39..... PWM_1_Standard
+heartBeat_Blue,        // 40..... PWM_1_Standard
+heartBeat_White,       // 41..... PWM_1_Standard
+heartBeat_Gray,        // 42..... PWM_1_Standard
+breath_Red,            // 43..... PWM_1_Standard
+breath_Blue,           // 44..... PWM_1_Standard
+breath_Gray,           // 45..... PWM_1_Standard
+EndtoEndStaticBlend_1, // 46..... PWM_2_Color1
+larsonScanner_Team1,   // 47..... PWM_2_Color1
+lightChase_Team1,      // 48..... PWM_2_Color1
+heartBeat_Team1s,      // 49..... PWM_3_Color2
+heartBeat_Team1m,      // 50..... PWM_3_Color3
+heartBeat_Team1f,      // 51..... PWM_3_Color4
+breath_Team1s,         // 52..... PWM_3_Color5
+breath_Team1f,         // 53..... PWM_3_Color6
+EndtoEndStaticBlend_2, // 54..... PWM_3_Color2
+larsonScanner_Team2,   // 55..... PWM_3_Color2
+lightChase_Team2,      // 56..... PWM_3_Color2
+heartBeat_Team2s,      // 57..... PWM_3_Color2
+heartBeat_Team2m,      // 58..... PWM_3_Color3
+heartBeat_Team2f,      // 59..... PWM_3_Color4
+breath_Team2s,         // 60..... PWM_3_Color5
+breath_Team2f,         // 61..... PWM_3_Color6
+teamSparkle,           // 62..... PWM_4_Color1_2
+rainbow_Team,          // 63..... PWM_4_Color1_2
+bpm_Team,              // 64..... PWM_4_Color1_2
+EndtoEndBlend,         // 65..... PWM_4_Color1_2
+EndtoEndStaticBlend,   // 66..... PWM_4_Color1_2
+testPattern,           // 67..... PWM_4_Color1_2
+drawTwinkles_Team,     // 68..... PWM_4_Color1_2
+colorwaves_Team,       // 69..... PWM_4_Color1_2
+sinelon_Team,          // 70..... PWM_4_Color1_2
+Blue,                  // 71..... PWM_5_Solid
+Blue,// 72..... PWM_5_Solid
+Blue,// 73..... PWM_5_Solid
+Green,                 // 74..... PWM_5_Solid
+Red,                 // 75..... PWM_5_Solid
+Blue,                 // 76..... PWM_5_Solid
+Blue,                 // 77..... PWM_5_Solid
+HotPink,               // 78..... PWM_5_Solid
+DarkRed,               // 79..... PWM_5_Solid
+Red,                   // 80..... PWM_5_Solid
+RedOrange,             // 81..... PWM_5_Solid
+Orange,                // 82..... PWM_5_Solid
+Gold,                  // 83..... PWM_5_Solid
+Yellow,                // 84..... PWM_5_Solid
+LawnGreen,             // 85..... PWM_5_Solid
+Lime,                  // 86..... PWM_5_Solid
+DarkGreen,             // 87..... PWM_5_Solid
+Green,                 // 88..... PWM_5_Solid
+BlueGreen,             // 89..... PWM_5_Solid
+Aqua,                  // 90..... PWM_5_Solid
+SkyBlue,               // 91..... PWM_5_Solid
+DarkBlue,              // 92..... PWM_5_Solid
+Blue,                  // 93..... PWM_5_Solid
+BlueViolet,            // 94..... PWM_5_Solid
+Violet,                // 95..... PWM_5_Solid
+White,                 // 96..... PWM_5_Solid
+Gray,                  // 97..... PWM_5_Solid
+DarkGray,              // 98..... PWM_5_Solid
+Black,                 // 99..... PWM_5_Solid
 };
 
 
@@ -206,7 +208,7 @@ void loop() {
     ledUpdate();
   }
 
-  EVERY_N_MILLISECONDS( 20 ) {
+  EVERY_N_MILLISECONDS( 25 ) {
     startIndex = startIndex + patternSpeed; /* motion speed */ 
 
     // slowly cycle the "base color" through the rainbow, used for some patterns
@@ -217,17 +219,17 @@ void loop() {
 
 
   // do some periodic updates
-  EVERY_N_MILLISECONDS( 200 ) {
+  EVERY_N_MILLISECONDS( 150 ) {
 
     if (inSetup) {
       readUserInputs();
     }
 
     //Pot 1 - User set pattern density, not used for all patterns
-    patternAdj = constrain(map(analogRead(COLOR1_PIN), 0, 1024, 0, 30), 0, 30);
+    patternAdj = map(analogRead(COLOR1_PIN), 0, 1024, 0, 30);
 
     //Pot 2 - User set pattern movement speed, not used for all patterns
-    patternSpeed = constrain(map(analogRead(COLOR2_PIN), 0, 1024, 0, 30), 0, 30);
+    patternSpeed = map(analogRead(COLOR2_PIN), 0, 1024, 0, 30);
     //startIndex = startIndex + patternSpeed; /* motion speed */
 
     if ((noSignal == true))
@@ -237,7 +239,7 @@ void loop() {
 
     //Pot 3 - user set strip brightness
     if ( inSetup == false ) {
-      brightness = map(analogRead(LENGTH_PIN), 0, 1024, 10, calculate_max_brightness_for_power_vmA(leds, stripLength, 255, 5, 4800));
+      brightness = map(analogRead(LENGTH_PIN), 0, 1024, 40, calculate_max_brightness_for_power_vmA(leds, stripLength, 255, 5, 4800));
       FastLED.setBrightness(brightness);
     }
   }
@@ -251,8 +253,10 @@ void ledUpdate()
 
   //check that the pattern value has been stable. Pattern value is the pattern requested by the user via PWM pulse width measurement.
   for (int i = 0 ; i < patternHistory.capacity() ; i++) {
-    if (patternHistory[0] != patternHistory[i])
+    if (patternHistory[0] != patternHistory[i]){
       patternStable = false; //if any of the elements of the patternHistory buffer don't match, the pattern is not stable
+      setStatusError();
+    }
   }
 
   if ((cmdDisableOutput == false) && (inSetup == false))
@@ -269,7 +273,8 @@ void ledUpdate()
   }
   else
   {
-    gPatterns[testPatternDisplay]();
+    //gPatterns[testPatternDisplay]();
+    gPatterns[noSignalPatternDisplay]();
   }
 
   // send the 'leds' array out to the actual LED strip
@@ -298,7 +303,7 @@ void showAnalogRGB( const CRGB& rgb)
 void displaySolid( CRGB rgb)
 {
   if (addressableStrip == true) {
-//    fill_solid( leds, NUM_LEDS, rgb );
+    //fill_solid( leds, NUM_LEDS, rgb );
     fill_solid( leds, stripLength, rgb );
   }
   else {

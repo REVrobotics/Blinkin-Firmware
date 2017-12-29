@@ -1,7 +1,8 @@
-void colorwavess_Team() {   colorwaves(teamPalette);    }
+void colorwaves_Team() {   colorwaves(teamPalette);    }
 void drawTwinkles_Team(){drawTwinkles(teamPalette);}
 void rainbow_Team(){rainbow(teamPalette);}
 void bpm_Team(){bpm(teamPalette);}
+void sinelon_Team() {   sinelon(teamPalette);    }
 
 
 void EndtoEndBlend() {
@@ -20,11 +21,25 @@ void EndtoEndStaticBlend() {
 }
 
 void teamSparkle() {
+    //CRGB tempColor = colorList[COLOR1].fadeToBlackBy(10);
   if (addressableStrip == true) {
-    fill_solid( leds, stripLength, colorList[COLOR1] );
+    fill_solid( leds, stripLength, colorList[COLOR1]);  //colorList[COLOR1].fadeToBlackBy(20) );
+    fadeToBlackBy( leds, stripLength, 100);
     addGlitter(255, colorList[COLOR2]);
   }
   else {
     showAnalogRGB( colorList[COLOR1] );
+  }
+}
+
+void teamSparkleinv() {
+  CRGB tempColor = colorList[COLOR2].fadeToBlackBy(10);
+  
+  if (addressableStrip == true) {
+    fill_solid( leds, stripLength, colorList[COLOR2].fadeToBlackBy(180));
+    addGlitter(255, colorList[COLOR1]);
+  }
+  else {
+    showAnalogRGB( colorList[COLOR2] );
   }
 }

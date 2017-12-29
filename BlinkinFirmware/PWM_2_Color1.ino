@@ -1,3 +1,12 @@
+void larsonScanner_Team1()  {   larsonScanner(colorList[COLOR1]);  }
+void lightChase_Team1() { lightChase(colorList[COLOR1]); }
+void heartBeat_Team1s() {  heartBeat(colorList[COLOR1], 1500); }
+void heartBeat_Team1m() {  heartBeat(colorList[COLOR1], 1000); }
+void heartBeat_Team1f() {  heartBeat(colorList[COLOR1], 800); }
+void breath_Team1s()     { breath(colorList[COLOR1], 1); }
+void breath_Team1f()     { breath(colorList[COLOR1], 3); }
+
+
 void EndtoEndBlend_1() {
   uint8_t speed = beatsin8(6,0,255);
   CRGB endclr = blend(BLACK, colorList[COLOR1], speed);

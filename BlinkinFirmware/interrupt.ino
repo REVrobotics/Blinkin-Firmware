@@ -24,7 +24,7 @@ void timerConfiguration(){
 }
 
 ISR(TIMER1_COMPA_vect) { 
-  detachInterrupt(2);
+  //detachInterrupt(2);
   
   patternHistory.unshift(noSignalPatternDisplay); 
 
@@ -33,7 +33,7 @@ ISR(TIMER1_COMPA_vect) {
   updatedLEDs = false;
   inPulse = false;
 
-  attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
+  //attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
 
 void ISRrising() {
@@ -91,10 +91,10 @@ void ISRfalling() {
 //      setStatusRun();
 //    }
   }
-  else if ((pwm_value < 2000) && (pwm_value >= 1200))
-  {
-    
-  }
+//  else if ((pwm_value < 2000) && (pwm_value >= 1200))
+//  {
+//    
+//  }
 
   prev_time = 0;
   inPulse = false;

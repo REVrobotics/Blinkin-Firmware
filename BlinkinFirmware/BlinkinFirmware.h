@@ -1,5 +1,5 @@
 //#define FASTLED_INTERRUPT_RETRY_COUNT 0
-//#define FASTLED_ALLOW_INTERRUPTS 0
+#define FASTLED_ALLOW_INTERRUPTS 1
 #include <FastLED.h>
 
 #include <EEPROM.h>
@@ -38,8 +38,8 @@ FASTLED_USING_NAMESPACE
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define NOSIGNALPATTERN 24
-#define TESTPATTERN 25
+#define NOSIGNALPATTERN 62 //0
+#define TESTPATTERN 67
 
 #define SS_EE       10
 #define COLOR1_EE   12
@@ -54,10 +54,10 @@ boolean cmdDisableOutput = false;
 //volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
 
-volatile boolean inPulse = false;
+volatile boolean inPulse = true;
 volatile boolean updatedLEDs = true;
 volatile boolean inSetup = false;
-volatile boolean noSignal = false;
+volatile boolean noSignal = true;
 
 uint8_t modeButtonHoldCount = 0;
 uint8_t ssButtonHoldCount = 0;
@@ -74,7 +74,7 @@ CRGBPalette16 currentPalette;
 CRGBPalette16 teamPalette;
 TBlendType    currentBlending;
 
-volatile CircularBuffer<byte,5> patternHistory;
+volatile CircularBuffer<byte,3> patternHistory;
 byte currentPattern = NOSIGNALPATTERN;  
 //volatile bool patternStable = true;
 
@@ -83,12 +83,12 @@ byte testPatternDisplay = TESTPATTERN;
 
 //uint8_t lengthHistory; 
 
-CircularBuffer<byte,3> color1History; 
+//CircularBuffer<byte,3> color1History; 
 //bool color1Stable = true;
 byte COLOR1 = 13;
 //byte COLOR1temp = COLOR1;
 
-CircularBuffer<byte,3> color2History;  
+//CircularBuffer<byte,3> color2History;  
 //bool color2Stable = true;
 byte COLOR2 = 5;
 //byte COLOR2temp = COLOR2;
@@ -101,7 +101,7 @@ uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
 
 uint8_t brightness = 200;
-uint8_t stripLength = 120;
+uint8_t stripLength = 60;
 
 #define HOT_PINK 0xFF00AA
 #define DARK_RED 0x990000

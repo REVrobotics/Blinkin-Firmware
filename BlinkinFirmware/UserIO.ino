@@ -8,8 +8,8 @@ void setupMode()
     setStatusSetup();
 
     // Set the current display pattern to the test pattern (a pattern which shows the two team colors)
-    testPatternDisplay = TESTPATTERN;
-
+    //testPatternDisplay = TESTPATTERN;
+    noSignalPatternDisplay = TESTPATTERN;
     
   }
   // Exit set-up
@@ -36,53 +36,25 @@ void setupMode()
 
 void readUserInputs()
 {
-  //read Pot value and translate to colors/strip Length
-  bool color1Stable = true;
-  bool color2Stable = true;
-  uint8_t lengthHistory = 1; 
+  //read Pot value and translate to colors/strip length
 
-    lengthHistory = map(analogRead(LENGTH_PIN), 0, 1024, 1, 120);
+  uint8_t newLength = constrain(map(analogRead(LENGTH_PIN), 0, 1024, 1, 241), 0, 240);
 
-    if (stripLength > lengthHistory){
-       //need loop to only update pixels to black that are > then new length
-       //for stripLength to lengthHistory[0]
-       for( int i = stripLength; i >= lengthHistory; i--)
-       {
-          leds[i] =  CRGB::Black;
-       }
-       FastLED.show();
-    }
-    stripLength = lengthHistory;           
+  if ((stripLength > newLength) && (addressableStrip == true)){
+     //need loop to only update pixels to black that are > then new length
+     //for stripLength to lengthHistory[0]
+     for( int i = NUM_LEDS-1; i >= newLength; i--)
+     {
+        leds[i] =  CRGB::Black;
+     }
+     FastLED.show();
+  }
+  stripLength = newLength;           
 
+  COLOR1 = map(analogRead(COLOR1_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList)));   
+  COLOR2 = map(analogRead(COLOR2_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList)));
 
-    color1History.unshift((byte)map(analogRead(COLOR1_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
-    
-    //check that the pattern value has been stable 
-    for (int i = 0 ; i< color1History.capacity() ; i++){
-      if (color1History[0] != color1History[i])
-        color1Stable = false;
-    }
-    
-    if (color1Stable){
-      COLOR1 = color1History[0];         
-    }   
-
-    //color1Stable = true;
-
-    color2History.unshift((byte)map(analogRead(COLOR2_PIN), 0, 1024, 0, (ARRAY_SIZE(colorList))));
-
-    //check that the pattern value has been stable 
-    for (int i = 0 ; i< color2History.capacity() ; i++){
-      if (color2History[0] != color2History[i])
-        color2Stable = false;
-    }
-    
-    if (color2Stable){
-      COLOR2 = color2History[0];         
-    }   
-
-    SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
-    //color2Stable = true;  
+  SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 }
 
 void buttonHandler()
@@ -102,7 +74,7 @@ void buttonHandler()
     
     if ((digitalRead(MODE_PIN) == HIGH) && (programButtonHoldCount == 0) && (inSetup == false))
     {
-      if (ssButtonHoldCount > 60)
+      if (ssButtonHoldCount > 40)
       {
         ssButtonHoldCount = 0;
         toggleStripSelect();
@@ -112,9 +84,9 @@ void buttonHandler()
   }
   else // SS_PIN == HIGH
   {
-    if ((ssButtonHoldCount > 10) && (programButtonHoldCount == 0) )
+    if ((ssButtonHoldCount > 5) && (programButtonHoldCount == 0) )
     {
-      if ((noSignal == true) && (inSetup == true))
+      if ((noSignal == true)) //&& (inSetup == true))
       {
         if (stripTransistion == true)
         {
@@ -123,7 +95,8 @@ void buttonHandler()
         else
         {
         //increment output pattern
-        testPatternDisplay++;// = constrain(noSignalPatternDisplay++, 0, 99);
+        //testPatternDisplay++;// = constrain(noSignalPatternDisplay++, 0, 99);
+        noSignalPatternDisplay++;
         }
       }
       ssButtonHoldCount = 0;
@@ -138,7 +111,7 @@ void buttonHandler()
     
     if ((digitalRead(SS_PIN) == HIGH) && (programButtonHoldCount == 0))
     {
-      if (modeButtonHoldCount > 180)
+      if (modeButtonHoldCount > 150)
       {
         modeButtonHoldCount = 0;
         setupMode();
@@ -148,9 +121,9 @@ void buttonHandler()
   }
   else // MODE_PIN == HIGH
   {
-    if ((modeButtonHoldCount > 10) && (programButtonHoldCount == 0) )
+    if ((modeButtonHoldCount > 5) && (programButtonHoldCount == 0) )
     {
-      if ((noSignal == true) && (inSetup == true))
+      if ((noSignal == true))// && (inSetup == true))
       {
         if (setupTransistion == true)
         {
@@ -159,7 +132,8 @@ void buttonHandler()
         else
         {
         //increment output pattern
-        testPatternDisplay--;// = constrain(noSignalPatternDisplay--, 0, 99);
+        //testPatternDisplay--;// = constrain(noSignalPatternDisplay--, 0, 99);
+        noSignalPatternDisplay--;
         }
       }
       modeButtonHoldCount = 0;
@@ -212,24 +186,27 @@ void testPattern()
     uint8_t colorIndex = 1;
     
     for( int i = 0; i < stripLength; i++) {
-        leds[i] = ColorFromPalette( teamPalette, colorIndex, brightness, currentBlending);
+        leds[i] = ColorFromPalette( teamPalette, colorIndex, brightness, NOBLEND);
         colorIndex += 3; 
         //fill_rainbow( leds, NUM_LEDS, gHue, 7);
     }
   }
   else {
+    
+    displaySolid( ColorFromPalette(teamPalette, gHue ));
+    
     // Long blink Primary and short Blink Secondary, then crossfade, repeat?
-    gHue = gHue + 1;
-    // Use FastLED automatic HSV->RGB conversion
-    showAnalogRGB( CHSV( gHue, 255, 255) );
-    delay(5);
+//    gHue = gHue + 1;
+//    // Use FastLED automatic HSV->RGB conversion
+//    showAnalogRGB( CHSV( gHue, 255, 255) );
+//    delay(5);
   }
 }
 
 void saveDefaults()
 {
-  if (testPatternDisplay != TESTPATTERN)
-    noSignalPatternDisplay = testPatternDisplay;
+//  if (noSignalPatternDisplay == TESTPATTERN)
+//    noSignalPatternDisplay = testPatternDisplay;
 //
 //  COLOR1temp = COLOR1;
 //  COLOR2temp = COLOR2; 
@@ -243,7 +220,8 @@ void saveDefaults()
       EEPROM.update(COLOR1_EE, COLOR1);
       EEPROM.update(COLOR2_EE, COLOR2);
       EEPROM.update(LED_EE, stripLength);
-      EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
+      if (noSignalPatternDisplay != TESTPATTERN)
+        EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
   }
   
 }
