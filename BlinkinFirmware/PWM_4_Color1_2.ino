@@ -21,7 +21,7 @@ void EndtoEndStaticBlend() {
 
 void teamSparkle() {
   if (addressableStrip == true) {
-    fill_solid( leds, stripLength, colorList[COLOR1]);  //colorList[COLOR1].fadeToBlackBy(20) );
+    fill_solid( leds, stripLength, colorList[COLOR1]);  
     fadeToBlackBy( leds, stripLength, 100);
     addGlitter(255, colorList[COLOR2]);
   }
@@ -31,10 +31,10 @@ void teamSparkle() {
 }
 
 void teamSparkleinv() {
-  CRGB tempColor = colorList[COLOR2].fadeToBlackBy(10);
-  
+
   if (addressableStrip == true) {
-    fill_solid( leds, stripLength, colorList[COLOR2].fadeToBlackBy(180));
+    fill_solid( leds, stripLength, colorList[COLOR2]);
+    fadeToBlackBy( leds, stripLength, 100);
     addGlitter(255, colorList[COLOR1]);
   }
   else {

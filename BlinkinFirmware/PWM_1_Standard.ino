@@ -73,11 +73,7 @@ void confetti()
   }
   else {
     //flash bright rand colors
-    //gHue = gHue + (patternSpeed/5);
-
-    //displaySolid( gHue );
-    displaySolid(CHSV( gHue + random8(64), 200, 255));    
-    //RAM
+    displaySolid(CHSV( gHue + random8(32), 200, 255));    
   }
 }
 
@@ -100,17 +96,13 @@ void sinelon(CRGBPalette16 palette)
   if (addressableStrip == true) {
     // a colored dot sweeping back and forth, with fading trails
     fadeToBlackBy( leds, stripLength, 40);
-    //uint8_t pos = beatsin8(15,0,stripLength-1);
     pos = beatsin8(15,0,stripLength-1);
-    //static uint8_t prevpos = 0;
     
     if( pos < prevpos ) { 
-      fill_solid( leds+pos, (prevpos-pos)+1, CHSV(gHue,220,255));
-      //fill_solid( leds+pos, (prevpos-pos)+1, ColorFromPalette(palette, 0)); //gHue )); //moveing back towards 0
+      fill_solid( leds+pos, (prevpos-pos)+1, ColorFromPalette(palette, gHue )); //moveing back towards 0
     } 
     else { 
-      fill_solid( leds+prevpos, (pos-prevpos)+1, CHSV( gHue,220,255));
-      //fill_solid( leds+prevpos, (pos-prevpos)+1,  ColorFromPalette(palette, 128));//gHue )); //moving towards leds[stripLength]
+      fill_solid( leds+prevpos, (pos-prevpos)+1,  ColorFromPalette(palette, gHue )); //moving towards leds[stripLength]
     }
     prevpos = pos;
   }
@@ -138,8 +130,7 @@ void shot(CRGB gColor)
   uint8_t Speed = map(patternSpeed, 0, 31, 1, 5);
   
   if (addressableStrip == true) {
-    static uint8_t prevpos = 0;
-    uint8_t pos = prevpos + Speed;
+    pos = prevpos + Speed;
 
     if (pos >= stripLength){ pos = 0; }
     
@@ -151,11 +142,7 @@ void shot(CRGB gColor)
       leds[i].fadeToBlackBy( random8(40,200) );
     }
 
-    fill_solid( leds+prevpos, (pos-prevpos)+1,  gColor);
-//      if (random8() > 200)
-//        leds[pos].addToRGB(40);
-      //leds[pos] = gColor;
-//      leds[pos].maximizeBrightness();      
+    fill_solid( leds+prevpos, (pos-prevpos)+1,  gColor);   
     prevpos = pos;
   }
   else {
@@ -357,9 +344,8 @@ void drawTwinkles( CRGBPalette16 palette )
       }
     }
   }
-  else
-  {
-    //RAM
+  else {
+    displaySolid( ColorFromPalette(palette, gHue ));
   }
 }
 
@@ -532,7 +518,7 @@ uint8_t eyeSize = map(patternAdj, 0 ,31 , 8, 30);
 uint8_t Speed = map(patternSpeed, 0, 31, 10, 35);
 
   if (addressableStrip == true) {
-    int pos = beatsin8(Speed,0+(eyeSize/2),stripLength-(eyeSize/2)-1);
+    pos = beatsin8(Speed,0+(eyeSize/2),stripLength-(eyeSize/2)-1);
 
     fill_solid( leds, stripLength, BLACK );
 

@@ -72,14 +72,17 @@ void buttonHandler()
   }
   else {
   // SS_PIN == HIGH
-    if ((ssButtonHoldCount > 5) && (programButtonHoldCount == 0) ) {
+    if ((ssButtonHoldCount > 4) && (programButtonHoldCount == 0) ) {
       if ((noSignal == true)) {
         if (stripTransistion == true) {
           stripTransistion = false;
         }
         else {
         //increment output pattern
-        noSignalPatternDisplay++; //RAM need to add constrain
+        if ( noSignalPatternDisplay >= 99)
+          noSignalPatternDisplay = 99;
+        else
+          noSignalPatternDisplay = constrain(noSignalPatternDisplay+1, 0, 99);
         }
       }
       ssButtonHoldCount = 0;
@@ -100,14 +103,17 @@ void buttonHandler()
   }
   else { 
     // MODE_PIN == HIGH
-    if ((modeButtonHoldCount > 5) && (programButtonHoldCount == 0) ) {
+    if ((modeButtonHoldCount > 4) && (programButtonHoldCount == 0) ) {
       if ((noSignal == true)) {
         if (setupTransistion == true) {
           setupTransistion = false;
         }
         else {
         //increment output pattern
-        noSignalPatternDisplay--;  //RAM need to add contrain
+        if ( noSignalPatternDisplay == 0)
+          noSignalPatternDisplay = 0;
+        else
+          noSignalPatternDisplay = constrain(noSignalPatternDisplay-1, 0, 99);
         }
       }
       modeButtonHoldCount = 0;

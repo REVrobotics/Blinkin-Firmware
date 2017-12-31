@@ -1,5 +1,5 @@
 //#define FASTLED_INTERRUPT_RETRY_COUNT 0
-#define FASTLED_ALLOW_INTERRUPTS 1
+#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 #include <EEPROM.h>
@@ -34,12 +34,11 @@ FASTLED_USING_NAMESPACE
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS 240
-//#define FRAMES_PER_SECOND 120
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define NOSIGNALPATTERN 34 //0 //62
-#define TESTPATTERN 67
+#define NOSIGNALPATTERN 28 
+#define TESTPATTERN 74
 
 #define SS_EE       10
 #define COLOR1_EE   12
@@ -51,7 +50,6 @@ CRGB leds[NUM_LEDS];
 
 boolean cmdDisableOutput = false;
 
-//volatile uint16_t pwm_value = 1500;
 volatile uint16_t prev_time = 0;
 
 volatile boolean inPulse = true;
@@ -89,7 +87,7 @@ uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
 
 uint8_t brightness = 200;
-uint8_t stripLength = 120;
+uint8_t stripLength = 60;
 
 uint8_t pos = 0;
 uint8_t prevpos =0;
