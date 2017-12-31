@@ -1,5 +1,5 @@
-void timerConfiguration(){
-  
+void timerConfiguration()
+{
   // Configure Timer1 interrupt
   //    16,000,000hz/8 = 2,000,000
   //    0.0000005 second = counter tick
@@ -10,7 +10,7 @@ void timerConfiguration(){
   
   // set compare match register
   OCR1A = 65000; //No signal detected after 0.0325 seconds (max counter of 65536) 
-//  OCR1A = 50000; //No signal detected after 0.025 seconds (max counter of 65536) 
+  //OCR1A = 50000; //No signal detected after 0.025 seconds (max counter of 65536) 
   
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
@@ -19,25 +19,20 @@ void timerConfiguration(){
   TCCR1B |= (1 << CS11);
   
   // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
-  
+  TIMSK1 |= (1 << OCIE1A);  
 }
 
-ISR(TIMER1_COMPA_vect) { 
-  //detachInterrupt(2);
-  
+ISR(TIMER1_COMPA_vect) 
+{ 
   patternHistory.unshift(noSignalPatternDisplay); 
 
   noSignal = true;
-
   updatedLEDs = false;
   inPulse = false;
-
-  //attachInterrupt(digitalPinToInterrupt(2), ISRrising, RISING);
 }
 
-void ISRrising() {
-
+void ISRrising() 
+{
   detachInterrupt(2);
   inPulse = true;
   noSignal = false;
@@ -49,31 +44,26 @@ void ISRrising() {
   attachInterrupt(digitalPinToInterrupt(2), ISRfalling, FALLING);
 }
 
-void ISRfalling() {
-
+void ISRfalling() 
+{
   detachInterrupt(2);
   
   uint16_t pwm_value = TCNT1 - prev_time;
 
   //TCNT1*0.0000005 = pulse width (seconds)
-  if ((pwm_value <= 4000) && (pwm_value >= 1990)) //4400 ~=2.2mS
-  {
-    if (commandSeq == false)
-    {
+  if ((pwm_value <= 4000) && (pwm_value >= 1990)) {
+    if (commandSeq == false) {
       patternHistory.unshift((byte)constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4000 is 2000ms and 1000 is 1000ms
     }
-    else
-    {
+    else {
       gCommands[currCommand](constrain(map(pwm_value, 2000, 4000, 0, 100),0,99));
       
       commandSeq = false;
       setStatusRun();
     }
   }
-  else if ((pwm_value > 4200) && (pwm_value <= 4400)) //2.10 ms to 2.20 ms
-  {
-    if ((inSetup == false))// && (commandSeq == false))
-    {
+  else if ((pwm_value > 4200) && (pwm_value <= 4400)) {
+    if ((inSetup == false)) {
 //      if (currCommand != constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19))
 //      {
         commandSeq = true;   

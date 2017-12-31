@@ -2,22 +2,17 @@ void setupMode()
 {
   inSetup = !inSetup;
 
-  if (inSetup)
-  {
+  if (inSetup) {
     // Update status LED color
     setStatusSetup();
 
     // Set the current display pattern to the test pattern (a pattern which shows the two team colors)
-    //testPatternDisplay = TESTPATTERN;
-    noSignalPatternDisplay = TESTPATTERN;
-    
+    noSignalPatternDisplay = TESTPATTERN;    
   }
-  // Exit set-up
-  else
-  {
+  else {
+    // Exit set-up
     // User exited setup
 
-    //addressableStrip = EEPROM.read(SS_EE);
     COLOR1 = EEPROM.read(COLOR1_EE);
     COLOR2 = EEPROM.read(COLOR2_EE);
     stripLength = EEPROM.read(LED_EE);
@@ -29,7 +24,7 @@ void setupMode()
     
     // Update Status LED Color
     setStatusRun();  
-    
+
     //resume normal operation
   }
 }
@@ -41,13 +36,12 @@ void readUserInputs()
   uint8_t newLength = constrain(map(analogRead(LENGTH_PIN), 0, 1024, 1, 241), 0, 240);
 
   if ((stripLength > newLength) && (addressableStrip == true)){
-     //need loop to only update pixels to black that are > then new length
-     //for stripLength to lengthHistory[0]
-     for( int i = NUM_LEDS-1; i >= newLength; i--)
-     {
-        leds[i] =  CRGB::Black;
-     }
-     FastLED.show();
+    //need loop to only update pixels to black that are > then new length
+    //for stripLength to lengthHistory[0]
+    for( int i = NUM_LEDS-1; i >= newLength; i--) {
+      leds[i] =  CRGB::Black;
+    }
+    FastLED.show();
   }
   stripLength = newLength;           
 
@@ -59,81 +53,61 @@ void readUserInputs()
 
 void buttonHandler()
 {
-
   // If both buttons are pressed increment the both buttons pressed counter
-  if((digitalRead(MODE_PIN) == LOW) && (digitalRead(SS_PIN) == LOW))
-  {
+  if((digitalRead(MODE_PIN) == LOW) && (digitalRead(SS_PIN) == LOW)) {
     programButtonHoldCount++;
   }
 
-
   // Strip Select Button Logic
-  if(digitalRead(SS_PIN) == LOW)
-  {
+  if(digitalRead(SS_PIN) == LOW) {
     ssButtonHoldCount++;
     
-    if ((digitalRead(MODE_PIN) == HIGH) && (programButtonHoldCount == 0) && (inSetup == false))
-    {
-      if (ssButtonHoldCount > 40)
-      {
+    if ((digitalRead(MODE_PIN) == HIGH) && (programButtonHoldCount == 0) && (inSetup == false)) {
+      if (ssButtonHoldCount > 40) {
         ssButtonHoldCount = 0;
         toggleStripSelect();
         stripTransistion = true;
       }
     }
   }
-  else // SS_PIN == HIGH
-  {
-    if ((ssButtonHoldCount > 5) && (programButtonHoldCount == 0) )
-    {
-      if ((noSignal == true)) //&& (inSetup == true))
-      {
-        if (stripTransistion == true)
-        {
+  else {
+  // SS_PIN == HIGH
+    if ((ssButtonHoldCount > 5) && (programButtonHoldCount == 0) ) {
+      if ((noSignal == true)) {
+        if (stripTransistion == true) {
           stripTransistion = false;
         }
-        else
-        {
+        else {
         //increment output pattern
-        //testPatternDisplay++;// = constrain(noSignalPatternDisplay++, 0, 99);
-        noSignalPatternDisplay++;
+        noSignalPatternDisplay++; //RAM need to add constrain
         }
       }
       ssButtonHoldCount = 0;
     }
   }
 
-
   // Mode Button Logic
-  if(digitalRead(MODE_PIN) == LOW)
-  {
+  if(digitalRead(MODE_PIN) == LOW) {
     modeButtonHoldCount++;
     
-    if ((digitalRead(SS_PIN) == HIGH) && (programButtonHoldCount == 0))
-    {
-      if (modeButtonHoldCount > 150)
-      {
+    if ((digitalRead(SS_PIN) == HIGH) && (programButtonHoldCount == 0)) {
+      if (modeButtonHoldCount > 130) {
         modeButtonHoldCount = 0;
         setupMode();
         setupTransistion = true;
       }
     }
   }
-  else // MODE_PIN == HIGH
-  {
-    if ((modeButtonHoldCount > 5) && (programButtonHoldCount == 0) )
-    {
-      if ((noSignal == true))// && (inSetup == true))
-      {
-        if (setupTransistion == true)
-        {
+  else { 
+    // MODE_PIN == HIGH
+    if ((modeButtonHoldCount > 5) && (programButtonHoldCount == 0) ) {
+      if ((noSignal == true)) {
+        if (setupTransistion == true) {
           setupTransistion = false;
         }
-        else
-        {
+        else {
         //increment output pattern
-        //testPatternDisplay--;// = constrain(noSignalPatternDisplay--, 0, 99);
-        noSignalPatternDisplay--;
+        noSignalPatternDisplay--;  //RAM need to add contrain
         }
       }
       modeButtonHoldCount = 0;
@@ -141,36 +115,29 @@ void buttonHandler()
   }
 
   // Both Buttons Pressed Logic
-  if ((programButtonHoldCount > 150) && (inSetup == true))
-  {
-    setStatusEEPROM(); 
-
-    if (programButtonHoldCount > 180)
-    {
-      //write EEPROM
-      saveDefaults();
+  if ((programButtonHoldCount > 110) && (inSetup == true)) {
+    //setStatusEEPROM(); 
+    setStatusError();
+    
+    //write EEPROM
+    saveDefaults();
       
-      setupMode();
-    }
+    setupMode();
     
     ssButtonHoldCount = 0;
     modeButtonHoldCount = 0;
   }
 
   // Reset all the counters if neither button is pressed
-  if(digitalRead(MODE_PIN) == HIGH && digitalRead(SS_PIN) == HIGH)
-  {
+  if(digitalRead(MODE_PIN) == HIGH && digitalRead(SS_PIN) == HIGH) {
     programButtonHoldCount = 0;
     ssButtonHoldCount = 0;
     modeButtonHoldCount = 0;
   }
-
 }
 
-
-
 //void SetupCustomPalette(uint8_t HUE_color1, uint8_t HUE_color2)
-void SetupCustomPalette(CRGB color1, CRGB color2)
+void SetupCustomPalette(CRGB color1, CRGB color2) 
 {
   teamPalette = CRGBPalette16(
                                  color2,  color1,  color1,  color1, 
@@ -182,17 +149,14 @@ void SetupCustomPalette(CRGB color1, CRGB color2)
 void testPattern()
 {  
   if (addressableStrip == true) {
-
     uint8_t colorIndex = 1;
     
     for( int i = 0; i < stripLength; i++) {
         leds[i] = ColorFromPalette( teamPalette, colorIndex, brightness, NOBLEND);
         colorIndex += 3; 
-        //fill_rainbow( leds, NUM_LEDS, gHue, 7);
     }
   }
-  else {
-    
+  else {    
     displaySolid( ColorFromPalette(teamPalette, gHue ));
     
     // Long blink Primary and short Blink Secondary, then crossfade, repeat?
@@ -204,35 +168,23 @@ void testPattern()
 }
 
 void saveDefaults()
-{
-//  if (noSignalPatternDisplay == TESTPATTERN)
-//    noSignalPatternDisplay = testPatternDisplay;
-//
-//  COLOR1temp = COLOR1;
-//  COLOR2temp = COLOR2; 
-  
-  //SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
-  
+{  
   //EEPROM write takes 3.3ms
-  if(writeEEPROM)
-  {
-      EEPROM.update(SS_EE, addressableStrip);
-      EEPROM.update(COLOR1_EE, COLOR1);
-      EEPROM.update(COLOR2_EE, COLOR2);
-      EEPROM.update(LED_EE, stripLength);
-      if (noSignalPatternDisplay != TESTPATTERN)
-        EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
-  }
-  
+  if(writeEEPROM) {
+    EEPROM.update(SS_EE, addressableStrip);
+    EEPROM.update(COLOR1_EE, COLOR1);
+    EEPROM.update(COLOR2_EE, COLOR2);
+    EEPROM.update(LED_EE, stripLength);
+    if (noSignalPatternDisplay != TESTPATTERN)
+      EEPROM.update(PATTERN_EE, noSignalPatternDisplay);
+  }  
 }
 
 void initEEPROM()
 {
-  if((digitalRead(MODE_PIN) == LOW) && (digitalRead(SS_PIN) == LOW))
-  {
+  if((digitalRead(MODE_PIN) == LOW) && (digitalRead(SS_PIN) == LOW)) {
     //EEPROM write takes 3.3ms
-    if(writeEEPROM)
-    {      
+    if(writeEEPROM) {      
       EEPROM.write(SS_EE, addressableStrip);
       EEPROM.write(COLOR1_EE, COLOR1);
       EEPROM.write(COLOR2_EE, COLOR2);
@@ -240,24 +192,22 @@ void initEEPROM()
       EEPROM.write(PATTERN_EE, noSignalPatternDisplay);
     }
   }
-  else
-  {
+  else {
     // Check if defaults have been stored in EEPROM
-    if (EEPROM.read(COLOR1_EE) == 0xFF) //defaults have not been saved, load variables into them
-    {
+    if (EEPROM.read(COLOR1_EE) == 0xFF) {
+      //defaults have not been saved, load variables into them
+
       //EEPROM write takes 3.3ms
-      if(writeEEPROM)
-      {      
+      if(writeEEPROM) {      
         EEPROM.write(SS_EE, addressableStrip);
         EEPROM.write(COLOR1_EE, COLOR1);
         EEPROM.write(COLOR2_EE, COLOR2);
         EEPROM.write(LED_EE, stripLength);
         EEPROM.write(PATTERN_EE, noSignalPatternDisplay);
-        //EEPROM.write(5, 0x42);
       }
     }
-    else  //reload from saved values
-    {
+    else {
+      //reload from saved values
       addressableStrip = EEPROM.read(SS_EE);
       COLOR1 = EEPROM.read(COLOR1_EE);
       COLOR2 = EEPROM.read(COLOR2_EE);
@@ -299,11 +249,10 @@ void setStatusMode() {
 }
 
 
-void setStatusNoSignal() {
+void setStatusNoSignal() 
+{
   // "Blink Output"
-
-  if (inSetup == false)
-  {
+  if (inSetup == false) {
     digitalWrite(sGREENPIN, HIGH);
     digitalWrite(sREDPIN, HIGH);
 
@@ -314,8 +263,7 @@ void setStatusNoSignal() {
       digitalWrite(sBLUEPIN, HIGH);
     }
   }
-  else
-  {
+  else {
     digitalWrite(sBLUEPIN, HIGH);
 
     if (digitalRead(sGREENPIN) == HIGH) {
@@ -329,7 +277,8 @@ void setStatusNoSignal() {
   }
 }
 
-void setStatusError() {
+void setStatusError() 
+{
   // "Red"
   digitalWrite(sREDPIN, LOW);
   digitalWrite(sGREENPIN, HIGH);
@@ -337,7 +286,8 @@ void setStatusError() {
 }
 
 
-void setStatusEEPROM() {
+void setStatusEEPROM() 
+{
   // "cyan"
   digitalWrite(sREDPIN, HIGH);
   digitalWrite(sGREENPIN, LOW);

@@ -38,7 +38,7 @@ FASTLED_USING_NAMESPACE
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define NOSIGNALPATTERN 62 //0
+#define NOSIGNALPATTERN 34 //0 //62
 #define TESTPATTERN 67
 
 #define SS_EE       10
@@ -76,24 +76,12 @@ TBlendType    currentBlending;
 
 volatile CircularBuffer<byte,3> patternHistory;
 byte currentPattern = NOSIGNALPATTERN;  
-//volatile bool patternStable = true;
 
 volatile byte noSignalPatternDisplay = NOSIGNALPATTERN;
 byte testPatternDisplay = TESTPATTERN;
 
-//uint8_t lengthHistory; 
-
-//CircularBuffer<byte,3> color1History; 
-//bool color1Stable = true;
 byte COLOR1 = 13;
-//byte COLOR1temp = COLOR1;
-
-//CircularBuffer<byte,3> color2History;  
-//bool color2Stable = true;
 byte COLOR2 = 5;
-//byte COLOR2temp = COLOR2;
-
-
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 uint8_t startIndex = 0;
@@ -101,7 +89,10 @@ uint8_t patternSpeed = 5;
 uint8_t patternAdj = 3;
 
 uint8_t brightness = 200;
-uint8_t stripLength = 60;
+uint8_t stripLength = 120;
+
+uint8_t pos = 0;
+uint8_t prevpos =0;
 
 #define HOT_PINK 0xFF00AA
 #define DARK_RED 0x990000

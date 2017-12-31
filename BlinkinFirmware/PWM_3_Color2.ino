@@ -1,10 +1,12 @@
-void larsonScanner_Team2()  {   larsonScanner(colorList[COLOR2]);  }
-void lightChase_Team2() { lightChase(colorList[COLOR2]); }
-void heartBeat_Team2s() {  heartBeat(colorList[COLOR2], 1500); }
-void heartBeat_Team2m() {  heartBeat(colorList[COLOR2], 1000); }
-void heartBeat_Team2f() {  heartBeat(colorList[COLOR2], 800); }
-void breath_Team2s()     { breath(colorList[COLOR2], 1); }
-void breath_Team2f()     { breath(colorList[COLOR2], 3); }
+void larsonScanner_Team2()  {   larsonScanner(colorList[COLOR2]);     }
+void lightChase_Team2()     {   lightChase(colorList[COLOR2]);        }
+void heartBeat_Team2s()     {   heartBeat(colorList[COLOR2], 1500);   }
+void heartBeat_Team2m()     {   heartBeat(colorList[COLOR2], 1000);   }
+void heartBeat_Team2f()     {   heartBeat(colorList[COLOR2], 800);    }
+void breath_Team2s()        {   breath(colorList[COLOR2], 1);         }
+void breath_Team2f()        {   breath(colorList[COLOR2], 3);         }
+void shot_Team2()           {   shot(colorList[COLOR2]);              }
+void strobe_Team2()         {   strobe(colorList[COLOR2]);            }
 
 void EndtoEndBlend_2() {
   uint8_t speed = beatsin8(6,0,255);

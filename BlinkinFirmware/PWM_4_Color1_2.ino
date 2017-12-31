@@ -1,8 +1,8 @@
-void colorwaves_Team() {   colorwaves(teamPalette);    }
-void drawTwinkles_Team(){drawTwinkles(teamPalette);}
-void rainbow_Team(){rainbow(teamPalette);}
-void bpm_Team(){bpm(teamPalette);}
-void sinelon_Team() {   sinelon(teamPalette);    }
+void colorwaves_Team()      {   colorwaves(teamPalette);              }
+void drawTwinkles_Team()    {   drawTwinkles(teamPalette);            }
+void rainbow_Team()         {   rainbow(teamPalette);                 }
+void bpm_Team()             {   bpm(teamPalette);                     }
+void sinelon_Team()         {   sinelon(teamPalette);                 }
 
 
 void EndtoEndBlend() {
@@ -17,11 +17,9 @@ void EndtoEndBlend() {
 void EndtoEndStaticBlend() {
   fill_gradient_RGB(leds, 0, colorList[COLOR1], stripLength/2, colorList[COLOR2]);
   fill_gradient_RGB(leds, stripLength/2+1, colorList[COLOR2], stripLength-1, colorList[COLOR1]);
-
 }
 
 void teamSparkle() {
-    //CRGB tempColor = colorList[COLOR1].fadeToBlackBy(10);
   if (addressableStrip == true) {
     fill_solid( leds, stripLength, colorList[COLOR1]);  //colorList[COLOR1].fadeToBlackBy(20) );
     fadeToBlackBy( leds, stripLength, 100);

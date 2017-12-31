@@ -1,12 +1,16 @@
 
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 
-void rainbow_RGB(){rainbow(RainbowColors_p);}
-void rainbow_Party(){rainbow(PartyColors_p);}
-void rainbow_Ocean(){rainbow(OceanColors_p);}
-void rainbow_Cloud(){rainbow(CloudColors_p);}
-void rainbow_Lava(){rainbow(LavaColors_p);}
-void rainbow_Forest(){rainbow(ForestColors_p);}
+void rainbow_RGB()        {   rainbow(RainbowColors_p);     }
+void rainbow_Party()      {   rainbow(PartyColors_p);       }
+void rainbow_Ocean()      {   rainbow(OceanColors_p);       }
+void rainbow_Cloud()      {   rainbow(CloudColors_p);       }
+void rainbow_Lava()       {   rainbow(LavaColors_p);        }
+void rainbow_Forest()     {   rainbow(ForestColors_p);      }
 
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 
 void rainbow(CRGBPalette16 palette)
 {
@@ -15,11 +19,9 @@ void rainbow(CRGBPalette16 palette)
     uint8_t colorIndex = startIndex; //startIndex+1;
     uint8_t patternLength = map(patternAdj, 0, 30, 1, 10);
     
-    // FastLED's built-in rainbow generator
     for( int i = 0; i < stripLength; i++) {
         leds[i] = ColorFromPalette( palette, colorIndex, brightness, currentBlending);
         colorIndex += patternLength; 
-        //fill_rainbow( leds, NUM_LEDS, gHue, 7);
     }
   }
   else {
@@ -32,6 +34,8 @@ void rainbow(CRGBPalette16 palette)
   }
 }
 
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 
 void rainbowWithGlitter()
 {
@@ -51,23 +55,20 @@ void rainbowWithGlitter()
 
 void addGlitter( fract8 chanceOfGlitter, CRGB gColor)
 {
-  if (addressableStrip == true) {
-    if ( random8() < chanceOfGlitter) {
-      //leds[ random16(NUM_LEDS) ] += CRGB::Black;
-      leds[ random8(stripLength) ] = gColor; //.fadeToBlackBy( 255 - (brightness*2) );
-    }
-  }
-  else {
-
+  if ( random8() < chanceOfGlitter) {
+    leds[ random8(stripLength) ] = gColor; 
   }
 }
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 
 void confetti()
 {
   if (addressableStrip == true) {
     // random colored speckles that blink in and fade smoothly
     fadeToBlackBy( leds, stripLength, 10);
-    int pos = random8(stripLength);
+    pos = random8(stripLength);
     leds[pos] += CHSV( gHue + random8(64), 200, 255);
   }
   else {
@@ -75,12 +76,14 @@ void confetti()
     //gHue = gHue + (patternSpeed/5);
 
     //displaySolid( gHue );
-    displaySolid(CHSV( gHue + random8(64), 200, 255));
-    
-    //delay(5);
+    displaySolid(CHSV( gHue + random8(64), 200, 255));    
+    //RAM
   }
-
 }
+
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 
 void sinelon_RGB()    {   sinelon(RainbowColors_p);   }
 void sinelon_Party()  {   sinelon(PartyColors_p);     }
@@ -89,44 +92,89 @@ void sinelon_Cloud()  {   sinelon(CloudColors_p);     }
 void sinelon_Lava()   {   sinelon(LavaColors_p);      }
 void sinelon_Forest() {   sinelon(ForestColors_p);    }
 
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
 void sinelon(CRGBPalette16 palette)
 {
-  if (addressableStrip == true) 
-  {
-      // a colored dot sweeping back and forth, with fading trails
-      fadeToBlackBy( leds, stripLength, 40);
-      int pos = beatsin8(15,0,stripLength-1);
-      static int prevpos = 0;
-      if( pos < prevpos ) 
-      { 
-        //fill_solid( leds+pos, (prevpos-pos)+1, CHSV(gHue,220,255));
-        fill_solid( leds+pos, (prevpos-pos)+1, ColorFromPalette(palette, gHue ));
-      } 
-      else 
-      { 
-        //fill_solid( leds+prevpos, (pos-prevpos)+1, CHSV( gHue,220,255));
-        fill_solid( leds+prevpos, (pos-prevpos)+1,  ColorFromPalette(palette, gHue ));
-        
-      }
-      prevpos = pos;
+  if (addressableStrip == true) {
+    // a colored dot sweeping back and forth, with fading trails
+    fadeToBlackBy( leds, stripLength, 40);
+    //uint8_t pos = beatsin8(15,0,stripLength-1);
+    pos = beatsin8(15,0,stripLength-1);
+    //static uint8_t prevpos = 0;
+    
+    if( pos < prevpos ) { 
+      fill_solid( leds+pos, (prevpos-pos)+1, CHSV(gHue,220,255));
+      //fill_solid( leds+pos, (prevpos-pos)+1, ColorFromPalette(palette, 0)); //gHue )); //moveing back towards 0
+    } 
+    else { 
+      fill_solid( leds+prevpos, (pos-prevpos)+1, CHSV( gHue,220,255));
+      //fill_solid( leds+prevpos, (pos-prevpos)+1,  ColorFromPalette(palette, 128));//gHue )); //moving towards leds[stripLength]
+    }
+    prevpos = pos;
   }
-  else
-  {
+  else {
     gHue = gHue + (patternSpeed/5);
-
-    displaySolid( ColorFromPalette(currentPalette, gHue ));
-    
-    //delay(5);
-    
+    displaySolid( ColorFromPalette(palette, gHue ));
   }
 }
 
-void bpm_RGB(){bpm(RainbowColors_p);}
-void bpm_Party(){bpm(PartyColors_p);}
-void bpm_Ocean(){bpm(OceanColors_p);}
-void bpm_Cloud(){bpm(CloudColors_p);}
-void bpm_Lava(){bpm(LavaColors_p);}
-void bpm_Forest(){bpm(ForestColors_p);}
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
+void shot_Red()       {   shot(RED);        }
+void shot_Blue()      {   shot(BLUE);       }
+void shot_White()     {   shot(WHITE);      }
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
+void shot(CRGB gColor)
+{
+  // Adjust the contrast ratio between the moving dot to the relative background
+  uint8_t dimming = map(patternAdj, 0 ,31 , 0, 220);
+  // Adjust the fill density and therefore relative speed of the moving dot
+  uint8_t Speed = map(patternSpeed, 0, 31, 1, 5);
+  
+  if (addressableStrip == true) {
+    static uint8_t prevpos = 0;
+    uint8_t pos = prevpos + Speed;
+
+    if (pos >= stripLength){ pos = 0; }
+    
+    fadeToBlackBy( leds, stripLength, 10);
+    
+    for(int i = 0; i < stripLength; i++) {
+      if ((random8() > 180) && (leds[i].getAverageLight() > 20) )
+          leds[i].addToRGB(leds[i].getAverageLight()*2);
+      leds[i].fadeToBlackBy( random8(40,200) );
+    }
+
+    fill_solid( leds+prevpos, (pos-prevpos)+1,  gColor);
+//      if (random8() > 200)
+//        leds[pos].addToRGB(40);
+      //leds[pos] = gColor;
+//      leds[pos].maximizeBrightness();      
+    prevpos = pos;
+  }
+  else {
+    displaySolid(gColor);
+  }
+}
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
+void bpm_RGB()          {   bpm(RainbowColors_p);     }
+void bpm_Party()        {   bpm(PartyColors_p);       }
+void bpm_Ocean()        {   bpm(OceanColors_p);       }
+void bpm_Cloud()        {   bpm(CloudColors_p);       }
+void bpm_Lava()         {   bpm(LavaColors_p);        }
+void bpm_Forest()       {   bpm(ForestColors_p);      }
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 
 
 void bpm(CRGBPalette16 palette)
@@ -136,9 +184,9 @@ void bpm(CRGBPalette16 palette)
     uint8_t BeatsPerMinute = map(patternSpeed, 0, 30, 30, 140);//62;
     uint8_t patternLength = map(patternAdj, 0, 30, 5, 30);
         
-    //CRGBPalette16 palette = PartyColors_p;
     uint8_t beat = beatsin8( BeatsPerMinute, 64, 255);
     //uint8_t beat = beatsin8( map(patternSpeed, 0, 30, 10, 200), 0, 255);
+
     for ( int i = 0; i < stripLength; i++) { 
       //leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i *30));
       leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * patternLength));
@@ -159,8 +207,8 @@ void bpm(CRGBPalette16 palette)
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void Fire2012_Low()   { Fire2012(120 , 80);   }
-void Fire2012_High()  { Fire2012(90, 60);    }
+void Fire2012_Low()     {   Fire2012(120 , 80);   }
+void Fire2012_High()    {   Fire2012(90, 60);     }
 
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -209,14 +257,14 @@ void Fire2012(uint8_t SPARKING, uint8_t COOLING)
       int pixelnumber;
       if ( gReverseDirection ) {
         pixelnumber = (stripLength - 1) - j;
-      } else {
+      } 
+      else {
         pixelnumber = j;
       }
       leds[pixelnumber] = color;
     }
   }
   else {
-    //flash firey pulses
     gHue = gHue + (patternSpeed/5);
 
     displaySolid( ColorFromPalette(currentPalette, gHue ));
@@ -227,12 +275,12 @@ void Fire2012(uint8_t SPARKING, uint8_t COOLING)
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void drawTwinkles_RGB(){      drawTwinkles(RainbowColors_p);  }
-void drawTwinkles_Party(){    drawTwinkles(PartyColors_p);    }
-void drawTwinkles_Ocean(){    drawTwinkles(OceanColors_p);    }
-void drawTwinkles_Cloud(){    drawTwinkles(CloudColors_p);    }
-void drawTwinkles_Lava(){     drawTwinkles(LavaColors_p);     }
-void drawTwinkles_Forest(){   drawTwinkles(ForestColors_p);   }
+void drawTwinkles_RGB()       {   drawTwinkles(RainbowColors_p);  }
+void drawTwinkles_Party()     {   drawTwinkles(PartyColors_p);    }
+void drawTwinkles_Ocean()     {   drawTwinkles(OceanColors_p);    }
+void drawTwinkles_Cloud()     {   drawTwinkles(CloudColors_p);    }
+void drawTwinkles_Lava()      {   drawTwinkles(LavaColors_p);     }
+void drawTwinkles_Forest()    {   drawTwinkles(ForestColors_p);   }
 
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -275,10 +323,8 @@ void drawTwinkles( CRGBPalette16 palette )
 
   uint8_t backgroundBrightness = bg.getAverageLight();
 
-  if (addressableStrip == true) 
-  {
-    for( int i = 0; i < stripLength; i++) 
-    {
+  if (addressableStrip == true) {
+    for( int i = 0; i < stripLength; i++) {
       PRNG16 = (uint16_t)(PRNG16 * 2053) + 1384; // next 'random' number
       uint16_t myclockoffset16= PRNG16; // use that number as clock offset
       PRNG16 = (uint16_t)(PRNG16 * 2053) + 1384; // next 'random' number
@@ -294,22 +340,17 @@ void drawTwinkles( CRGBPalette16 palette )
   
       uint8_t cbright = c.getAverageLight();
       int16_t deltabright = cbright - backgroundBrightness;
-      if( deltabright >= 32 || (!bg)) 
-      {
+      if( deltabright >= 32 || (!bg)) {
         // If the new pixel is significantly brighter than the background color, 
         // use the new color.
         leds[i] = c;
-  
       } 
-      else if( deltabright > 0 ) 
-      {
+      else if( deltabright > 0 ) {
         // If the new pixel is just slightly brighter than the background color,
         // mix a blend of the new color and the background color
         leds[i] = blend( bg, c, deltabright * 8);
-  
       } 
-      else 
-      { 
+      else { 
         // if the new pixel is not at all brighter than the background color,
         // just use the background color.
         leds[i] = bg;
@@ -318,7 +359,7 @@ void drawTwinkles( CRGBPalette16 palette )
   }
   else
   {
-    
+    //RAM
   }
 }
 
@@ -335,14 +376,12 @@ CRGB computeOneTwinkle( uint32_t ms, uint8_t salt)
 {
   // Overall twinkle density.
   // 0 (NONE lit) to 8 (ALL lit at once).  
-  // Default is 5.
   uint8_t TWINKLE_DENSITY = map(patternAdj, 0, 30, 1, 8);
 
   // Overall twinkle speed.
   // 0 (VERY slow) to 8 (VERY fast).  
-  // 4, 5, and 6 are recommended, default is 4.
+  // 4, 5, and 6 are recommended.
   uint8_t TWINKLE_SPEED = map(patternSpeed, 0, 30, 3,7);
-
   
   uint16_t ticks = ms >> (8-TWINKLE_SPEED);
   uint8_t fastcycle8 = ticks;
@@ -363,7 +402,8 @@ CRGB computeOneTwinkle( uint32_t ms, uint8_t salt)
     if( COOL_LIKE_INCANDESCENT == 1 ) {
       coolLikeIncandescent( c, fastcycle8);
     }
-  } else {
+  } 
+  else {
     c = CRGB::Black;
   }
   return c;
@@ -384,7 +424,8 @@ uint8_t attackDecayWave8( uint8_t i)
 {
   if( i < 86) {
     return i * 3;
-  } else {
+  } 
+  else {
     i -= 86;
     return 255 - (i + (i/2));
   }
@@ -406,12 +447,12 @@ void coolLikeIncandescent( CRGB& c, uint8_t phase)
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void colorwaves_RGB()     {   colorwaves(RainbowColors_p);   }
-void colorwaves_Party()   {   colorwaves(PartyColors_p);     }
-void colorwaves_Ocean()   {   colorwaves(OceanColors_p);     }
-void colorwaves_Cloud()   {   colorwaves(CloudColors_p);     }
-void colorwaves_Lava()    {   colorwaves(LavaColors_p);      }
-void colorwavess_Forest() {   colorwaves(ForestColors_p);    }
+void colorwaves_RGB()       {   colorwaves(RainbowColors_p);   }
+void colorwaves_Party()     {   colorwaves(PartyColors_p);     }
+void colorwaves_Ocean()     {   colorwaves(OceanColors_p);     }
+void colorwaves_Cloud()     {   colorwaves(CloudColors_p);     }
+void colorwaves_Lava()      {   colorwaves(LavaColors_p);      }
+void colorwavess_Forest()   {   colorwaves(ForestColors_p);    }
 
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -439,19 +480,15 @@ void colorwaves(CRGBPalette16 palette )
   sHue16 += deltams * beatsin88( 400, 5,9);
   uint16_t brightnesstheta16 = sPseudotime;
 
-  if (addressableStrip == true) 
-  {
-    for( uint16_t i = 0 ; i < stripLength; i++) 
-    {
+  if (addressableStrip == true) {
+    for( uint16_t i = 0 ; i < stripLength; i++) {
       hue16 += hueinc16;
       uint8_t hue8 = hue16 / 256;
       uint16_t h16_128 = hue16 >> 7;
-      if( h16_128 & 0x100) 
-      {
+      if( h16_128 & 0x100) {
         hue8 = 255 - (h16_128 >> 1);
       } 
-      else 
-      {
+      else {
         hue8 = h16_128 >> 1;
       }
   
@@ -473,8 +510,7 @@ void colorwaves(CRGBPalette16 palette )
       nblend( leds[pixelnumber], newcolor, 128);
     }
   }
-  else
-  {
+  else {
       displaySolid( ColorFromPalette(palette, gHue ));
   }
 }
@@ -482,8 +518,8 @@ void colorwaves(CRGBPalette16 palette )
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void larsonScanner_Red()  {   larsonScanner(DARK_RED);  }
-void larsonScanner_Gray()  {   larsonScanner(GRAY);  }
+void larsonScanner_Red()    {   larsonScanner(DARK_RED);  }
+void larsonScanner_Gray()   {   larsonScanner(GRAY);      }
 
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -495,8 +531,7 @@ void larsonScanner(CRGB gColor){
 uint8_t eyeSize = map(patternAdj, 0 ,31 , 8, 30);
 uint8_t Speed = map(patternSpeed, 0, 31, 10, 35);
 
-  if (addressableStrip == true) 
-  {
+  if (addressableStrip == true) {
     int pos = beatsin8(Speed,0+(eyeSize/2),stripLength-(eyeSize/2)-1);
 
     fill_solid( leds, stripLength, BLACK );
@@ -504,8 +539,7 @@ uint8_t Speed = map(patternSpeed, 0, 31, 10, 35);
     fill_gradient_RGB(leds, pos-(eyeSize/2), BLACK, pos, gColor);
     fill_gradient_RGB(leds, pos, gColor, pos+(eyeSize/2), BLACK);
   }
-  else
-  {
+  else {
     displaySolid(gColor);
   }
 }
@@ -514,9 +548,10 @@ uint8_t Speed = map(patternSpeed, 0, 31, 10, 35);
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void lightChase_Red() { lightChase(DARK_RED); }
-void lightChase_Blue() { lightChase(DARK_BLU); }
-void lightChase_Gray() { lightChase(GRAY); }
+void lightChase_Red()     { lightChase(DARK_RED);   }
+void lightChase_Blue()    { lightChase(DARK_BLU);   }
+void lightChase_Gray()    { lightChase(GRAY);       }
+
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
@@ -524,32 +559,29 @@ void lightChase_Gray() { lightChase(GRAY); }
 // https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/#library
 void lightChase(CRGB gColor){
 
-  uint8_t dimming = map(patternAdj, 0 ,31 , 50, 255);
+  // Adjust the contrast ratio between the moving dot to the relative background
+  uint8_t dimming = map(patternAdj, 0 ,31 , 0, 220);
+  // Adjust the fill density and therefore relative speed of the moving dot
   uint8_t Speed = map(patternSpeed, 0, 31, 1, 5);
-  
-  fill_solid( leds, stripLength, BLACK );
     
-  if (addressableStrip == true) 
-  {
-      static uint8_t prevpos = 0;
-      uint8_t pos = prevpos + Speed;
+  if (addressableStrip == true) {
+    pos = pos + Speed;
+    if (pos >= stripLength){ pos = 0; }
+    
+    fill_solid( leds, stripLength, BLACK );
+    
+    for(int i = 0; i < stripLength; i++) {
+      leds[i] = gColor;
+      //leds[i].fadeLightBy( dimming );
+      leds[i].fadeToBlackBy( 255 - dimming );
+    }
 
-      if (pos >= stripLength){ pos = 0; }
+    leds[pos] = gColor;
+    leds[pos].maximizeBrightness();
       
-      for(int i = 0; i < stripLength; i = i + Speed) 
-      {
-        leds[i] =gColor;
-        //leds[i].fadeLightBy( dimming );
-        leds[i].fadeToBlackBy( dimming );
-      }
-
-      leds[pos] = gColor;
-      leds[pos].maximizeBrightness();
-        
-      prevpos = pos;
+    //prevpos = pos;
   }
-  else
-  {
+  else {
     displaySolid(gColor);
   }
 }
@@ -558,10 +590,10 @@ void lightChase(CRGB gColor){
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void heartBeat_Red() {  heartBeat(DARK_RED, 1000); }
-void heartBeat_Blue() {  heartBeat(DARK_BLU, 1000); }
-void heartBeat_White() {  heartBeat(WHITE, 1000); }
-void heartBeat_Gray() {  heartBeat(GRAY, 1000); }
+void heartBeat_Red()      {  heartBeat(DARK_RED, 1000);   }
+void heartBeat_Blue()     {  heartBeat(DARK_BLU, 1000);   }
+void heartBeat_White()    {  heartBeat(WHITE, 1000);      }
+void heartBeat_Gray()     {  heartBeat(GRAY, 1000);       }
 
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -577,15 +609,13 @@ void heartBeat(CRGB gColor, uint16_t cycleLength){
 
   uint8_t bloodVal = qadd8( pulseWave8( millis(), cycleLength, PULSELENGTH-100 ), pulseWave8( millis() + PULSEOFFSET, cycleLength, PULSELENGTH ) );
   
-  if (addressableStrip == true) 
-  {
+  if (addressableStrip == true) {
     for (int i = 0; i < stripLength ; i++) {
       leds[i] = gColor;
       leds[i].fadeLightBy( 255 - bloodVal );
     }
   }
-  else
-  {
+  else {
     displaySolid( gColor.fadeLightBy( 255 - bloodVal ));
   }
 }
@@ -595,10 +625,12 @@ uint8_t pulseWave8(uint32_t ms, uint16_t cycleLength, uint16_t pulseLength) {
   
   uint16_t T = ms % cycleLength;
   if ( T > pulseLength) return baseBrightness;
+  
   uint16_t halfPulse = pulseLength / 2;
   if (T <= halfPulse ) {
     return (T * 255) / halfPulse;  //first half = going up
-  } else {
+  } 
+  else {
     return((pulseLength - T) * 255) / halfPulse;  //second half = going down
   }
 }
@@ -606,9 +638,9 @@ uint8_t pulseWave8(uint32_t ms, uint16_t cycleLength, uint16_t pulseLength) {
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
-void breath_Red()     { breath(DARK_RED, 1); }
-void breath_Blue()     { breath(DARK_BLU, 1); }
-void breath_Gray()     { breath(GRAY, 1); }
+void breath_Red()       { breath(DARK_RED, 1);    }
+void breath_Blue()      { breath(DARK_BLU, 1);    }
+void breath_Gray()      { breath(GRAY, 1);        }
 
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -618,13 +650,36 @@ void breath_Gray()     { breath(GRAY, 1); }
 //https://gist.github.com/hsiboy/4eae11073e9d5b21eae3
 void breath(CRGB gColor, uint8_t Speed){
 
-  if (addressableStrip == true) 
-  {
-    fill_solid(leds, stripLength, gColor.fadeLightBy( constrain(255 -((exp(sin((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) , 0,235)));
+  if (addressableStrip == true) {
+    fill_solid(leds, stripLength, gColor.fadeLightBy( constrain(255 -((exp(sin8((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) , 0,235)));
   }
-  else
-  {
-    displaySolid( gColor.fadeLightBy( 255 -((exp(sin((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) ));
+  else {
+    displaySolid( gColor.fadeLightBy( 255 -((exp(sin8((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) ));
+  }
+}
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
+void strobe_Red()       { strobe(RED);    }
+void strobe_Blue()      { strobe(BLUE);    }
+void strobe_Gold()      { strobe(GOLD);        }
+void strobe_White()     { strobe(WHITE);        }
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
+
+void strobe(CRGB gColor)
+{
+  //uint8_t Speed = map(patternSpeed, 0, 31, 80, 255);
+  if ( beat8(255) > 80){
+  //beatsin8( 220, 0, 255) > 150){
+    displaySolid( gColor );
+    //leds.maximizeBrightness();
+  }
+  else{
+    displaySolid( BLACK );      
   }
 }
 
