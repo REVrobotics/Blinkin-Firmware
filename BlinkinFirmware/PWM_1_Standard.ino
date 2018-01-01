@@ -637,10 +637,10 @@ void breath_Gray()      { breath(GRAY, 1);        }
 void breath(CRGB gColor, uint8_t Speed){
 
   if (addressableStrip == true) {
-    fill_solid(leds, stripLength, gColor.fadeLightBy( constrain(255 -((exp(sin8((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) , 0,235)));
+    fill_solid(leds, stripLength, gColor.fadeLightBy( constrain(255 -((exp(sin((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) , 0,235)));
   }
   else {
-    displaySolid( gColor.fadeLightBy( 255 -((exp(sin8((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) ));
+    displaySolid( gColor.fadeLightBy( 255 -((exp(sin((millis()*Speed)/2000.0*PI)) - 0.36787944)*108.0) ));
   }
 }
 

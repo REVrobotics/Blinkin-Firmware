@@ -274,7 +274,9 @@ void ledUpdate()
   else
   {
     //gPatterns[testPatternDisplay]();
-    gPatterns[noSignalPatternDisplay]();
+    if (cmdDisableOutput == false){
+      gPatterns[noSignalPatternDisplay]();
+    }
   }
 
   // send the 'leds' array out to the actual LED strip

@@ -56,35 +56,23 @@ void ISRfalling()
       patternHistory.unshift((byte)constrain(map(pwm_value, 2000, 4000, 0, 100),0,99) ); //4000 is 2000ms and 1000 is 1000ms
     }
     else {
-      gCommands[currCommand](constrain(map(pwm_value, 2000, 4000, 0, 100),0,99));
+      gCommands[currCommand](map(pwm_value, 2000, 4000, 0, 99));
       
       commandSeq = false;
       setStatusRun();
     }
   }
-  else if ((pwm_value > 4200) && (pwm_value <= 4400)) {
+  else if ((pwm_value >= 4200) && (pwm_value <= 4400)) {
     if ((inSetup == false)) {
-//      if (currCommand != constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 19))
-//      {
+
         commandSeq = true;   
           
         // Indicate Command mode signal detected    
         setStatusCommand();
         
-        currCommand = constrain(map(pwm_value, 4000, 4401, 0, 20), 0, 9);
-//      }
+        currCommand = constrain(map(pwm_value, 4200, 4401, 0, 10), 0, 9);
     }
-//    else if ((inSetup == false) && (commandSeq == true))
-//    {
-//      commandSeq = false;   
-//      
-//      setStatusRun();
-//    }
   }
-//  else if ((pwm_value < 2000) && (pwm_value >= 1200))
-//  {
-//    
-//  }
 
   prev_time = 0;
   inPulse = false;
