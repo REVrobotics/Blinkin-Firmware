@@ -46,11 +46,11 @@ insert diagram
 
 ### Using the Serial Monitor
 
-- In BlinkinFirmware.ino, add `ino Serial.begin(115200);` in setup()
+- In BlinkinFirmware.ino, add `Serial.begin(115200);` in setup()
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Serial-begin%20Screenshot.png" width="960" height="540" />
 
-- Use `ino Serial.print()` or `ino Serial.println()` anywhere in the code to print to the Serial Monitor
+- Use `Serial.print()` or `Serial.println()` anywhere in the code to print to the Serial Monitor
 - Press the Serial Monitor button at the top right corner of the IDE to open the Serial Monitor
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Serial%20Monitor%20Screenshot.png" width="960" height="540" />
@@ -62,7 +62,7 @@ insert diagram
 #### See what pattern you have cycled to
 
 - Go to UserIO.ino
-- Add `ino Serial.println(noSignalPatternDisplay);` at the locations in the screenshots below
+- Add `Serial.println(noSignalPatternDisplay);` at the locations in the screenshots below
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Print%20Cycle%20Screenshot_1.png" width="960" height="540" />
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Print%20Cycle%20Screenshot_2.png" width="960" height="540" />
