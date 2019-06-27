@@ -4,7 +4,7 @@
 
 ### Getting the board ready
 
-insert diagram
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Wiring%20Diagram.png" width="720" height="405" />
 
 - Follow the diagram to plug the Blinkin board into an Arduino UNO
 - Plug a 12V battery into the Blinkin with an XT30 cable
