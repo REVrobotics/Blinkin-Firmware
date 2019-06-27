@@ -40,7 +40,7 @@ void setup() {
   SetupCustomPalette(colorList[COLOR1], colorList[COLOR2]);
 
   // Fill the pattern history buffer with values
-  for (int i = 0 ; i < patternHistory.capacity() ; i++) {
+  for (int i = 0 ; i < patternHistory.capacity ; i++) {
     patternHistory.unshift(noSignalPatternDisplay);
   }
 
@@ -252,7 +252,7 @@ void ledUpdate()
   bool patternStable = true;
 
   //check that the pattern value has been stable. Pattern value is the pattern requested by the user via PWM pulse width measurement.
-  for (int i = 0 ; i < patternHistory.capacity() ; i++) {
+  for (int i = 0 ; i < patternHistory.capacity ; i++) {
     if (patternHistory[0] != patternHistory[i]){
       patternStable = false; //if any of the elements of the patternHistory buffer don't match, the pattern is not stable
       //setStatusError();
