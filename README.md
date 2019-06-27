@@ -94,3 +94,20 @@ This guide will use the programmer built into the Arduino Uno to target the Blin
 - In this example, the method makes the LED strip blink rapidly between two colors, similar to the strobe function
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Add%20Method%20Screenshot.png" width="720" height="405" />
+
+### Creating a custom palette
+
+- Locate the folder your Arduino libraries are saved in (usually C:\Users\Username\Documents\Arduino\libraries)
+- In FastLED-master, open **colorpalettes.cpp** and **colorpalettes.h**
+- Add the definition for the new color palette in **colorpalettes.h** by adding `extern const TProgmemRGBPalette16 CustomPalette_p FL_PROGMEM;`
+
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Palette%20Definition%20Screenshot.png" width="720" height="405" />
+
+- Create the palette in **colorpalettes.cpp** by adding `extern const TProgmemRGBPalette1 CustomPalette_p FL_PROGMEM = { };`, putting the desired colors in the brackets
+- In this example, the palette cycles through white, red, blue, green, and yellow, then blacks out the LEDs before starting the cycle over
+
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Custom%20Palette%20Screenshot.png" width="720" height="405" />
+
+- Save the two files and add the palettes into the Arduino code
+
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Use%20Custom%20Palette%20Screenshot.png" width="720" height="405" />
