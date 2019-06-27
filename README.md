@@ -33,7 +33,7 @@ This guide will use the programmer built into the Arduino Uno to target the Blin
 - Extract the contents into a folder named **BlinkinFirmware**
 - Open **BlinkinFirmware.ino** in the Arduino IDE
 - Download [FastLED-master.zip](https://github.com/FastLED/FastLED) and [CircularBuffer-master.zip](https://github.com/rlogiacco/CircularBuffer)
-- Under "Include Library menu," located in the **Sketch** tab, click "Add .ZIP Library..."
+- Under **Include Library**, located in the **Sketch** tab, click "Add .ZIP Library..."
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Sketch-Include%20Library%20Screenshot.png" width="720" height="405" />
 
