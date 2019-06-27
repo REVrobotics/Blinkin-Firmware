@@ -54,7 +54,7 @@ insert diagram
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Serial-begin%20Screenshot.png" width="720" height="405" />
 
-- Use `Serial.print()` or `Serial.println()` anywhere in the code to print to the Serial Monitor
+- Use `Serial.print();` or `Serial.println();` anywhere in the code to print to the Serial Monitor
 - Press the Serial Monitor button at the top right corner of the IDE to open the Serial Monitor
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Serial%20Monitor%20Screenshot.png" width="720" height="405" />
