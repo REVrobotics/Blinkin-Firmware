@@ -2,10 +2,15 @@
 
 ## Getting Started
 
+**Important Note:** Uploading custom code to the Blinkin requires opening the device. Please note that opening the device to upload code will void the warranty. REV Robotics is not liable for damage that may occur due to device modifications. Use at your own risk. For more details, please visit the REV Robotics [Warranty Page](http://www.revrobotics.com/warranty-and-returns/).
+
 ### Getting the board ready
 
-- Follow the diagram below to wire the Blinkin board into an Arduino UNO
-- Plug a 12V battery into the Blinkin with an XT30 cable
+This guide will use the programmer built into the Arduino Uno to target the Blinkin board. Be careful when following these instructions and wiring the device.
+
+- Follow the diagram below to carefully wire the Blinkin board into an Arduino UNO
+- Remove the main chip from the socket of the Arduino. This will cause the built-in Arduino programmer to target the Blinkin instead.
+- Apply 12V to the Blinkin with an XT30 cable
 - Plug the Arduino UNO into your computer with a USB-A to USB-B cable
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Wiring%20Diagram.png" width="720" height="405" />
@@ -24,7 +29,7 @@
 
 ### Uploading the Blinkin firmware to the board
 
-- Download **BlinkinFirmware-master.zip** from this GitHub repository
+- Clone or download **BlinkinFirmware-master.zip** from this GitHub repository
 - Extract the contents into a folder named **BlinkinFirmware**
 - Open **BlinkinFirmware.ino** in the Arduino IDE
 - Download [FastLED-master.zip](https://github.com/FastLED/FastLED) and [CircularBuffer-master.zip](https://github.com/rlogiacco/CircularBuffer)
