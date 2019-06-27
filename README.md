@@ -8,7 +8,7 @@
 
 This guide will use the programmer built into the Arduino Uno to target the Blinkin board. Be careful when following these instructions and wiring the device.
 
-- Follow the diagram below to carefully wire the Blinkin board into an Arduino UNO
+- Follow the diagram below to carefully wire the Blinkin board into an Arduino Uno
 - Remove the main chip from the socket of the Arduino. This will cause the built-in Arduino programmer to target the Blinkin instead.
 - Apply 12V to the Blinkin with an XT30 cable
 - Plug the Arduino UNO into your computer with a USB-A to USB-B cable
