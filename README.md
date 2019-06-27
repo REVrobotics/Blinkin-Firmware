@@ -8,7 +8,6 @@
 
 - Follow the diagram to plug the Blinkin board into an Arduino UNO
 - Plug a 12V battery into the Blinkin with an XT30 cable
-- Plug an LED stip into the Blinkin with the Blinkin LED cable adapter
 - Plug the Arduino UNO into your computer with a USB-A to USB-B cable
 
 ### Setting up the Arduino IDE
@@ -40,6 +39,7 @@
 
 ### Using the preset patterns
 
+- Plug an LED strip into the Blinkin with the Blinkin LED cable adapter to see the output
 - Hold the **Mode** button on the Blinkin board to enable setup mode
 - Use the **Mode** and **Strip Select** buttons to cycle through the preset patterns
 - Turn the left two potentiometers on the Blinkin to adjust the preset team colors (Used in patterns 49 through 79)
