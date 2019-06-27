@@ -1,5 +1,7 @@
 # REV Blinkin LED Driver
 
+## Getting Started
+
 ### Getting the board ready
 
 insert diagram
@@ -44,6 +46,8 @@ insert diagram
 - Turn the rightmost potentiometer to adjust the length of the LED strip
 - A list of the preset patterns can either be found in BlinkinFirmware.ino or [here](http://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf)
 
+## Editing the Firmware
+
 ### Using the Serial Monitor
 
 - In BlinkinFirmware.ino, add `Serial.begin(115200);` in setup()
@@ -59,10 +63,29 @@ insert diagram
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Serial%20Monitor-baud%20Screenshot.png" width="720" height="405" />
 
-#### See what pattern you have cycled to
+#### Seeing what pattern you cycle to
 
 - Open UserIO.ino
 - Add `Serial.println(noSignalPatternDisplay);` at the locations in the screenshots below
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Print%20Cycle%20Screenshot_1.png" width="720" height="405" />
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Print%20Cycle%20Screenshot_2.png" width="720" height="405" />
+
+### Creating a custom function
+
+- In BlinkinFirmware.ino, there is an array of functions named `gPatterns`
+- Change the name of an existing function in this list of functions
+
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/gPatterns%20Change%20Function%20Screenshot.png" width="720" height="405" />
+
+- Then, to modify what it does, open the PWM file the function is located in (For this example, open PWM_1_Standard)
+- Now find the function that was renamed, and change its name to the new one here
+- Inside the brackets next to the function is what runs when the function is selected
+- Delete the contents in the brackets and add a new method
+
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/PWM_1_Standard%20Change%20Function%20Screenshot.png" width="720" height="405" />
+
+- Below, create the new method with the desired parameters and create what the function does inside the brackets
+- In this example, the method makes the LED strip blink rapidly between two colors, similar to the strobe function
+
+<img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Add%20Method%20Screenshot.png" width="720" height="405" />
