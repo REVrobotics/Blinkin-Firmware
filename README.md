@@ -61,7 +61,7 @@ insert diagram
 
 #### See what pattern you have cycled to
 
-- Go to UserIO.ino
+- Open UserIO.ino
 - Add `Serial.println(noSignalPatternDisplay);` at the locations in the screenshots below
 
 <img src="https://github.com/willtoth/BlinkinFirmware/blob/master/images/Print%20Cycle%20Screenshot_1.png" width="720" height="405" />
