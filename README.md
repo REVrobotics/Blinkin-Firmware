@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-**Important Note:** Opening this device or using modified firmware *may or may not* change the legality of use in robotics competitions. Please refer to the rules of the specific competition you are using this device in before making modifications.
+**Important Note:** Opening this device or using modified firmware *may or may not* change the legality for use in robotics competitions. Please refer to the rules of the specific competition you are using this device in before making modifications.
 
 **Important Note:** Uploading custom code to the Blinkin requires opening the device. Please note that opening the device to upload code will void the warranty. REV Robotics is not liable for damage that may occur due to device modifications. Use at your own risk. For more details, please visit the REV Robotics [Warranty Page](http://www.revrobotics.com/warranty-and-returns/).
 
